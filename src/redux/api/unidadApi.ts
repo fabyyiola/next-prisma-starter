@@ -1,0 +1,19 @@
+import { get, post, put, del } from './postApi';
+
+const API_URL = '/api/unidades';
+
+export const fetchUnidades = async () => {
+  return await get(API_URL);
+};
+
+export const createUnidad = async (unidadData: any) => {
+  return await post(API_URL, unidadData);
+};
+
+export const updateUnidad = async (id: number, unidadData: any) => {
+  return await put(`${API_URL}/${id}`, unidadData);
+};
+
+export const deleteUnidad = async (id: number) => {
+  return await del(`${API_URL}/${id}`);
+};

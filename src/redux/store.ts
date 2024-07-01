@@ -1,33 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit';
+import appReducer from './features/appSlice';
 
-import { user, post } from '@/redux/features'
-import { userApi } from '@/redux/api'
-import config from '@/config/default'
+const store = configureStore({
+  reducer: {
+    app: appReducer,
+  },
+});
 
-const reducer = {
-	[user.name]: user.reducer,
-	[post.name]: post.reducer,
-	[userApi.reducerPath]: userApi.reducer,
-}
+export type AppState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
-/**
- *
- * @returns redux toolkit store
- */
-const createStore = () =>
-	configureStore({
-		reducer,
-		devTools: !config.isProduction,
-		middleware: (getDefaultMiddleware) => {
-			return getDefaultMiddleware({
-				serializableCheck: false,
-			}).concat(userApi.middleware)
-		},
-	})
-
-const store = createStore()
-
-export type AppState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-
-export default store
+export default store;

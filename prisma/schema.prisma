@@ -1,39 +1,66 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-// Your models goes here ...
-
-model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  role      Role     @default(user)
-  avatar    String?
-  posts     Post[]
-  createdAt DateTime @default(now()) @db.Timestamp(3)
-  updatedAt DateTime @updatedAt @db.Timestamp(3)
+model clientes {
+  ID            Int      @id @default(autoincrement())
+  Nombre        String
+  Calle         String
+  Ciudad        String
+  Estado        String
+  CodigoPostal  String
+  RFC           String
+  RegimenFiscal String
 }
 
-model Post {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  image     String
-  user      User?    @relation(fields: [user_id], references: [id])
-  user_id   String?
-  createdAt DateTime @default(now()) @db.Timestamp(3)
-  updatedAt DateTime @updatedAt @db.Timestamp(3)
+model direcciones {
+  ID           Int      @id @default(autoincrement())
+  Nombre       String
+  Calle        String
+  Ciudad       String
+  Estado       String
+  CodigoPostal String
+  Referencias  String?
 }
 
-enum Role {
-  user
-  admin
+model empleados {
+  ID              Int      @id @default(autoincrement())
+  Nombre          String
+  Direccion       String
+  Telefono        String
+  NombreConyuge   String?
+  TelefonoConyuge String?
+  CURP            String
+  RFC             String
+  AptoMedico      DateTime
+  Licencia        DateTime
+  Tipo            String
+  SueldoSemanal   Float
+}
+
+model unidades {
+  ID              Int      @id @default(autoincrement())
+  NoEconomico     Int
+  Placas          String
+  Marca           String
+  Modelo          String
+  Tipo            String
+  VerMecanica     DateTime
+  VerContaminantes DateTime
+  VerUS           DateTime
+  PolizaUS        DateTime
+  PolizaMX        DateTime
+}
+
+model usuarios {
+  ID           Int      @id @default(autoincrement())
+  Nombre       String
+  Email        String
+  Accesos      String
+  Administrador Boolean
 }
