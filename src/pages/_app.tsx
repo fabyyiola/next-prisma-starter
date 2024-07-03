@@ -9,7 +9,9 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <Layout>
+        <div className="content-body">
         <Component {...pageProps} />
+        </div>
       </Layout>
     </Provider>
   );
