@@ -9,12 +9,12 @@ const TABS: Tab[] = [
 	{
 		label: 'EdoMX',
 		value: 'Edo mexico',
-		columnIndex: 3,
+		columnIndex: 4,
 	},
 	{
 		label: 'NL',
 		value: 'NL',
-		columnIndex: 3,
+		columnIndex: 4,
 	},
 ]
 

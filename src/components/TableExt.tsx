@@ -32,7 +32,7 @@ export interface Tab {
 export interface TableCell {
 	type: 'text' | 'avatar' | 'chip'
 	value: string
-  colName:string
+	colName: string
 	subtitle?: string
 	imgSrc?: string
 	chipColor?: colors | undefined
@@ -53,7 +53,7 @@ interface TableExtProps {
 	showSearchInput?: boolean
 	addRecordButtonText?: string
 	handleAddClick?: () => void
-  handleEditClick?: (row:any) => void
+	handleEditClick?: (row: any) => void
 }
 
 export default function TableExt({
@@ -67,7 +67,7 @@ export default function TableExt({
 	showSearchInput = false,
 	addRecordButtonText = 'Agregar registro',
 	handleAddClick = () => {},
-  handleEditClick= ()=>{}
+	handleEditClick = () => {},
 }: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
@@ -99,15 +99,11 @@ export default function TableExt({
 				})
 			} else if (query) {
 				// Filter by query across all columns
-				filteredRowsCopy = initialTableRows.filter((row) => {
+				filteredRowsCopy = filteredRows.filter((row) => {
 					return row.cells.some((cell) =>
 						cell.value.toLowerCase().includes(query.toLowerCase())
 					)
 				})
-			} else {
-				// If only columnIndex is provided, show all rows (as query is not specified)
-				// This case doesn't really make sense based on the requirements, so it defaults to showing all records
-				filteredRowsCopy = [...initialTableRows]
 			}
 
 			setFilteredRows(filteredRowsCopy)
@@ -169,7 +165,7 @@ export default function TableExt({
 							{[allTab, ...tabs].map(({ label, value, columnIndex }) => (
 								<Tab
 									onClick={() => {
-										handleSearch(value, columnIndex,false)
+										handleSearch(value, columnIndex, false)
 									}}
 									key={value}
 									value={value}
@@ -288,7 +284,10 @@ export default function TableExt({
 									{showEditButton && (
 										<td className={classes}>
 											<Tooltip content="Edit User">
-												<IconButton variant="text" onClick={()=>handleEditClick(transformObj(row))}>
+												<IconButton
+													variant="text"
+													onClick={() => handleEditClick(transformObj(row))}
+												>
 													<PencilIcon className="h-4 w-4" />
 												</IconButton>
 											</Tooltip>
