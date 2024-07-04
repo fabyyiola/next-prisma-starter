@@ -71,6 +71,8 @@ export default function TableExt({
 }: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
+	const [activeTabValue, setActiveTabValue] = useState<string>('all')
+	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
 
 	// Update filtered rows whenever initialTableRows or tabs change
 	useEffect(() => {
@@ -88,6 +90,7 @@ export default function TableExt({
 
 	const filterRows = (query?: string, columnIndex?: number) => {
 		let filteredRowsCopy = [...initialTableRows]
+		console.log('query:', query)
 		if (query == 'all') {
 			setFilteredRows(filteredRowsCopy)
 		} else {
@@ -97,23 +100,27 @@ export default function TableExt({
 					const cell = row.cells[columnIndex]
 					return cell && cell.value.toLowerCase().includes(query.toLowerCase())
 				})
-			} else if (query) {
+			} else if (query && query != '') {
 				// Filter by query across all columns
 				filteredRowsCopy = filteredRows.filter((row) => {
 					return row.cells.some((cell) =>
 						cell.value.toLowerCase().includes(query.toLowerCase())
 					)
 				})
+			} else if (query == '' && activeTabValue != 'all') {
+				filteredRowsCopy = initialTableRows.filter((row) => {
+					const cell = row.cells[activeTabColIndex]
+					return cell && cell.value.toLowerCase().includes(activeTabValue.toLowerCase())
+				})
 			}
-
+			console.log('check:', query, activeTabValue)
 			setFilteredRows(filteredRowsCopy)
 		}
 	}
 
-	const [activeTabValue, setActiveTabValue] = useState<string>('all')
-
-	const handleTabChange = (value: string) => {
+	const handleTabChange = (value: string,colIndex:number) => {
 		setActiveTabValue(value)
+		setActiveTabColIndex(colIndex)
 		if (value === 'all') {
 			setFilteredRows(initialTableRows)
 		} else {
@@ -124,10 +131,6 @@ export default function TableExt({
 			}
 		}
 	}
-
-	useEffect(() => {
-		handleTabChange('all')
-	}, [])
 
 	const allTab: Tab = { label: 'All', value: 'all', columnIndex: -1 }
 	return (
@@ -156,15 +159,12 @@ export default function TableExt({
 					)}
 				</div>
 				<div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-					<Tabs
-						value={activeTabValue}
-						className="w-full md:w-max"
-						onChange={handleTabChange}
-					>
+					<Tabs value={activeTabValue} className="w-full md:w-max">
 						<TabsHeader>
 							{[allTab, ...tabs].map(({ label, value, columnIndex }) => (
 								<Tab
 									onClick={() => {
+										handleTabChange(value,columnIndex)
 										handleSearch(value, columnIndex, false)
 									}}
 									key={value}
