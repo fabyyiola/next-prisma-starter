@@ -61,3 +61,7 @@ export interface Direccion {
 	RegimenFiscal: string;
   }
   
+  export interface RegimenFiscal {
+	ID: number;
+	Nombre: string;
+  }

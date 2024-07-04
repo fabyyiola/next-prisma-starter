@@ -7,5 +7,5 @@ export * from './direccionApi';
 export * from './empleadoApi';
 export * from './unidadApi';
 export * from './usuarioApi';
-
+export * from './regimenFiscalApi';
 

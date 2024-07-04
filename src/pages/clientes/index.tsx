@@ -4,11 +4,12 @@ import TableExt, { Tab, TableCell, TableRow } from '@/components/TableExt' // Ad
 import { Cliente } from '@/types/schema.types'
 import { Modal } from '@/components/Modal'
 import ClientForm from '@/components/forms/client'
+import { NotificationAlert } from '@/components/NotificationAlert'
 
 const TABS: Tab[] = [
 	{
 		label: 'BJS',
-		value: 'a',
+		value: 'gua',
 		columnIndex: 4,
 	},
 	{
@@ -24,7 +25,7 @@ const TABLE_HEAD = [
 	'Calle',
 	'Ciudad',
 	'Estado',
-	'Código Postal',
+	'Codigo Postal',
 	'RFC',
 	'Regimen Fiscal',
 ]

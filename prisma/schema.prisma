@@ -64,3 +64,8 @@ model usuarios {
   Accesos      String
   Administrador Boolean
 }
+
+model regimenFiscal {
+  ID     Int    @id @default(autoincrement())
+  Nombre String @unique
+}

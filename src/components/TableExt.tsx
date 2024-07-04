@@ -1,3 +1,50 @@
+/**
+ * TableExt Component
+ * 
+ * This component renders a customizable table with optional tabs, search functionality, and filtering capabilities.
+ * 
+ * STATES:
+ * - searchQuery (string): Stores the current search query.
+ * - filteredRows (TableRow[]): Stores the rows filtered based on the search query and filters.
+ * - activeTabValue (string): Stores the value of the currently active tab.
+ * - activeTabColIndex (number): Stores the column index of the currently active tab.
+ * - currentPage (number): Stores the current page number for pagination.
+ * - showFilters (boolean): Toggles the visibility of column filters.
+ * - sortConfig ({ key: string, direction: 'ascending' | 'descending' } | null): Stores the sorting configuration.
+ * - columnFilters (string[]): Stores the column filter values.
+ * 
+ * FUNCTIONS:
+ * - getMaxColumnLengths (rows: TableRow[]): Returns an object with the maximum length of each column value.
+ * - filterRows (query?: string, columnIndex?: number): Filters the table rows based on the search query and column filters.
+ * - handleSearch (query: string, columnIndex?: number, changeInputVal: boolean): Handles the search input change and filters rows.
+ * - handleTabChange (value: string, colIndex: number): Handles the tab change and filters rows.
+ * - handlePageChange (newPage: number): Handles the pagination and changes the current page.
+ * - handleSort (columnIndex: number): Handles sorting of columns.
+ * - sortRows (): Sorts the rows based on the sort configuration.
+ * - handleFilterChange (value: string, index: number): Handles the column filter change and filters rows.
+ * - toggleFilters (): Toggles the visibility of column filters.
+ * 
+ * PARAMETERS:
+ * - tabs (Tab[]): Array of tabs to be displayed above the table.
+ * - tableHead (string[]): Array of column headers.
+ * - tableRows (TableRow[]): Array of rows to be displayed in the table.
+ * - title (string): Title of the table.
+ * - subtitle (string): Subtitle of the table.
+ * - showEditButton (boolean): Flag to show or hide the edit button in each row.
+ * - showAddRecordButton (boolean): Flag to show or hide the add record button.
+ * - showSearchInput (boolean): Flag to show or hide the search input.
+ * - addRecordButtonText (string): Text to be displayed on the add record button.
+ * - handleAddClick (): Callback function for add record button click.
+ * - handleEditClick (row: any): Callback function for edit button click in each row.
+ * 
+ * CONSTANTS:
+ * - rowsPerPage (number): Number of rows to be displayed per page.
+ * - allTab (Tab): The "All" tab to be displayed in the tabs header.
+ * - cellsPadding (string): Padding for the table cells.
+ * - headersPadding (string): Padding for the table headers.
+ * - isScrollable (boolean): Determines if the table is scrollable based on the number of columns.
+ */
+
 import React, { useState, useEffect } from 'react'
 import {
 	MagnifyingGlassIcon,
@@ -56,6 +103,9 @@ interface TableExtProps {
 	handleEditClick?: (row: any) => void
 }
 
+/**
+ * Returns an object with the maximum length of each column value.
+ */
 const getMaxColumnLengths = (rows: TableRow[]): { [key: string]: number } => {
 	const maxLengths: { [key: string]: number } = {}
 
@@ -111,6 +161,9 @@ export default function TableExt({
 		sortRows()
 	}, [sortConfig, filteredRows])
 
+	/**
+	 * Handles the search input change and filters rows.
+	 */
 	const handleSearch = (
 		query: string,
 		columnIndex?: number,
@@ -121,6 +174,9 @@ export default function TableExt({
 		setCurrentPage(1) // Reset to first page on new search
 	}
 
+	/**
+	 * Filters the table rows based on the search query and column filters.
+	 */
 	const filterRows = (query?: string, columnIndex?: number) => {
 		let filteredRowsCopy = [...initialTableRows]
 		if (query === 'all') {
@@ -158,6 +214,9 @@ export default function TableExt({
 		setFilteredRows(filteredRowsCopy)
 	}
 
+	/**
+	 * Handles the tab change and filters rows.
+	 */
 	const handleTabChange = (value: string, colIndex: number) => {
 		setSearchQuery('')
 		setActiveTabValue(value)
@@ -174,12 +233,18 @@ export default function TableExt({
 		setCurrentPage(1) // Reset to first page on tab change
 	}
 
+	/**
+	 * Handles the pagination and changes the current page.
+	 */
 	const handlePageChange = (newPage: number) => {
 		if (newPage > 0 && newPage <= totalPages) {
 			setCurrentPage(newPage)
 		}
 	}
 
+	/**
+	 * Handles sorting of columns.
+	 */
 	const handleSort = (columnIndex: number) => {
 		let key = tableHead[columnIndex]
 		let direction: 'ascending' | 'descending' = 'ascending'
@@ -193,6 +258,9 @@ export default function TableExt({
 		setSortConfig({ key, direction })
 	}
 
+	/**
+	 * Sorts the rows based on the sort configuration.
+	 */
 	const sortRows = () => {
 		if (sortConfig !== null) {
 			const sortedRows = [...filteredRows].sort((a, b) => {
@@ -213,6 +281,9 @@ export default function TableExt({
 		}
 	}
 
+	/**
+	 * Handles the column filter change and filters rows.
+	 */
 	const handleFilterChange = (value: string, index: number) => {
 		const newFilters = [...columnFilters]
 		newFilters[index] = value
@@ -220,6 +291,9 @@ export default function TableExt({
 		filterRows()
 	}
 
+	/**
+	 * Toggles the visibility of column filters.
+	 */
 	const toggleFilters = () => {
 		setShowFilters(!showFilters)
 	}
@@ -232,7 +306,7 @@ export default function TableExt({
 	const cellsPadding = '0'
 	const headersPadding = '2'
 
-	const isScrollable = tableHead.length > 9 // 8 columns + 1 actions column
+	const isScrollable = tableHead.length > 5 // 8 columns + 1 actions column
 
 	return (
 		<Card className="h-full w-full">
@@ -353,15 +427,16 @@ export default function TableExt({
 											onChange={(e) =>
 												handleFilterChange(e.target.value, index)
 											}
-											className="p-1 "
+											className="p-0 pl-1 "
 											style={{
 												maxWidth: `${
 													index === 0 && tableHead[0] === 'ID'
 														? '60'
-														: maxColumnLengths[head] * 10
+														: maxColumnLengths[head] * 7
 												}px`,
 												borderBottom: '1px solid #d2d2d2',
-												marginRight:'10px'
+												marginRight:'5px',
+												marginLeft:index === 0 && tableHead[0] === 'ID'?'5px':''
 											}}
 										/>
 									</td>

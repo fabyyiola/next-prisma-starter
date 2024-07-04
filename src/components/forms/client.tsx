@@ -1,18 +1,25 @@
 import { useState, useEffect, ChangeEvent } from 'react'
-import { createClient, updateClient, deleteClient } from '@/apiCalls'
+import {
+	createClient,
+	updateClient,
+	deleteClient,
+	fetchRegimenFiscales,
+} from '@/apiCalls'
 import { Cliente } from '@/types/schema.types'
 import InputNewSearch from '../InputNewSearch'
+import RegimenFiscalForm from './regimenFiscal'
+import { NotificationAlert } from '../NotificationAlert' // Import the NotificationAlert component
 
 interface ClientFormProps {
 	onSuccess?: (data: Cliente | unknown) => void
 	onError?: (error: any) => void
-	client: Cliente | null
+	client?: Cliente | null
 }
 
 export default function ClientForm({
 	onSuccess,
 	onError,
-	client,
+	client = null,
 }: ClientFormProps) {
 	const [formData, setFormData] = useState<Cliente>({
 		ID: NaN,
@@ -25,13 +32,44 @@ export default function ClientForm({
 		RegimenFiscal: '',
 	})
 
+	const [regimenesFiscales, setRegimenesFiscales] = useState<
+		{ text: string; value: string }[]
+	>([])
+
+	const [alertMessage, setAlertMessage] = useState<string | null>(null)
+	const [alertType, setAlertType] = useState<
+		'info' | 'warning' | 'error' | 'success'
+	>('success')
+
 	useEffect(() => {
 		if (client) {
 			setFormData(client)
 		}
 	}, [client])
 
+	useEffect(() => {
+		async function loadRegimenesFiscales() {
+			try {
+				const response: any = await fetchRegimenFiscales()
+				const options = response.map((regimen: { Nombre: string }) => ({
+					text: regimen.Nombre,
+					value: regimen.Nombre,
+				}))
+				setRegimenesFiscales(options)
+			} catch (error) {
+				setAlertMessage('Failed to fetch regimenes fiscales')
+				setAlertType('error')
+			}
+		}
+		loadRegimenesFiscales()
+	}, [])
+
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target
+		setFormData({ ...formData, [name]: value })
+	}
+
+	const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
 		const { name, value } = e.target
 		setFormData({ ...formData, [name]: value })
 	}
@@ -41,18 +79,17 @@ export default function ClientForm({
 			let response: Cliente | unknown = undefined
 			if (client && client.ID) {
 				response = await deleteClient(client.ID)
-				console.log(
-					'Client ' + JSON.stringify(client) + ' deleted successfully:',
-					response
-				)
+				setAlertMessage('Client deleted successfully')
+				setAlertType('success')
 				if (onSuccess) {
 					onSuccess(client.ID)
 				}
 			} else {
-				throw 'This should never show up in the console =D'
+				throw 'Unhandled error: Client ID is missing'
 			}
 		} catch (error) {
-			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
+			setAlertMessage(`Error deleting client: ${error}`)
+			setAlertType('error')
 			if (onError) {
 				onError(error)
 			}
@@ -65,16 +102,19 @@ export default function ClientForm({
 			let response: Cliente | unknown = undefined
 			if (client) {
 				response = await updateClient(formData.ID, formData)
-				console.log('Client updated successfully:', response)
+				setAlertMessage('Client updated successfully')
+				setAlertType('success')
 			} else {
 				response = await createClient(formData)
-				console.log('Client created successfully:', response)
+				setAlertMessage('Client created successfully')
+				setAlertType('success')
 			}
 			if (onSuccess) {
 				onSuccess(response)
 			}
 		} catch (error) {
-			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
+			setAlertMessage(`Unhandled error: ${error}`)
+			setAlertType('error')
 			if (onError) {
 				onError(error)
 			}
@@ -83,6 +123,9 @@ export default function ClientForm({
 
 	return (
 		<div className="mx-auto bg-white rounded-md">
+			{alertMessage && (
+				<NotificationAlert message={alertMessage} type={alertType} />
+			)}
 			<form onSubmit={handleSubmit}>
 				<div className="flex flex-wrap -mx-2">
 					{[
@@ -135,10 +178,12 @@ export default function ClientForm({
 					<div className="w-full md:w-1/2 px-2 mb-4">
 						<InputNewSearch
 							label="Regimen fiscal"
-							placeholder="RESICO, Serv. Profesionales, etc"
+							options={regimenesFiscales}
 							name="RegimenFiscal"
 							value={formData.RegimenFiscal}
-							onChange={handleChange}
+							onChange={handleDropdownChange}
+							newNode={<RegimenFiscalForm />}
+							searchNode={<>Search Node</>}
 						/>
 					</div>
 				</div>
@@ -158,7 +203,7 @@ export default function ClientForm({
 						type="submit"
 						className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 focus:outline-none"
 					>
-						{client ? "Actualizar" : "Guardar"}
+						{client ? 'Actualizar' : 'Guardar'}
 					</button>
 				</div>
 			</form>
