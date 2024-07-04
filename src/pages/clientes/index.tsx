@@ -32,7 +32,8 @@ const IndexPage = () => {
   const [clients, setClients] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
+  const [selectedClient, setSelectedClient] = useState<Cliente|null>(null);
+  
   const handleOpen = () => {
     setIsOpen(!isOpen);
   };
@@ -55,6 +56,11 @@ const IndexPage = () => {
   const handleSuccess = (newClient: Cliente) => {
     setClients((prevClients) => [...prevClients, newClient]);
     setIsOpen(false);
+  };
+
+  const handleEditClick = (client: Cliente) => {
+    setSelectedClient(client);
+    setIsOpen(true);
   };
 
   const mapClientToTableRow = (client: Cliente): TableRow => ({
@@ -81,12 +87,13 @@ const IndexPage = () => {
         tableRows={tableRows}
         showEditButton={true}
         handleOpen={handleOpen}
+        handleEditClick={handleEditClick}
         addRecordButtonText={"Agregar cliente"}
         showAddRecordButton={true}
         showSearchInput={true}
       />
       <Modal headerText={"Agregar cliente"} size={'md'} isOpen={isOpen} handleOpen={handleOpen}>
-        <ClientForm onSuccess={handleSuccess} />
+        <ClientForm client={selectedClient} onSuccess={handleSuccess} />
       </Modal>
     </div>
   );

@@ -51,6 +51,7 @@ interface TableExtProps {
 	showSearchInput?: boolean
 	addRecordButtonText?: string
 	handleOpen?: () => void
+  handleEditClick?: (row:any) => void
 }
 
 export default function TableExt({
@@ -64,6 +65,7 @@ export default function TableExt({
 	showSearchInput = false,
 	addRecordButtonText = 'Agregar registro',
 	handleOpen = () => {},
+  handleEditClick= ()=>{}
 }: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
@@ -284,7 +286,7 @@ export default function TableExt({
 									{showEditButton && (
 										<td className={classes}>
 											<Tooltip content="Edit User">
-												<IconButton variant="text">
+												<IconButton variant="text" onClick={()=>handleEditClick(row)}>
 													<PencilIcon className="h-4 w-4" />
 												</IconButton>
 											</Tooltip>
