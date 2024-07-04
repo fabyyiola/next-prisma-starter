@@ -51,30 +51,41 @@ const IndexPage = () => {
 	}, [])
 
 	const handleAddClick = () => {
-    setSelectedClient(null)
+		setSelectedClient(null)
 		setIsOpen(!isOpen)
 	}
 
 	const handleSuccess = (newClient: Cliente | unknown) => {
-    if (typeof newClient === 'object' && newClient !== null && 'ID' in newClient) {
-        const updatedClient = newClient as Cliente;
-        setClients((prevClients: Cliente[]) => {
-            const index = prevClients.findIndex(client => client.ID === updatedClient.ID);
-            if (index !== -1) {
-                // Replace the existing client with the updated client
-                return [
-                    ...prevClients.slice(0, index),
-                    updatedClient,
-                    ...prevClients.slice(index + 1),
-                ];
-            } else {
-                // Add the new client
-                return [...prevClients, updatedClient];
-            }
-        });
-    }
-    setIsOpen(false);
-};
+		if (
+			typeof newClient === 'object' &&
+			newClient !== null &&
+			'ID' in newClient
+		) {
+			const updatedClient = newClient as Cliente
+			setClients((prevClients: Cliente[]) => {
+				const index = prevClients.findIndex(
+					(client) => client.ID === updatedClient.ID
+				)
+				if (index !== -1) {
+					// Replace the existing client with the updated client
+					return [
+						...prevClients.slice(0, index),
+						updatedClient,
+						...prevClients.slice(index + 1),
+					]
+				} else {
+					// Add the new client
+					return [...prevClients, updatedClient]
+				}
+			})
+		} else if (typeof newClient === 'number') {
+			const clientIdToDelete = newClient
+			setClients((prevClients: Cliente[]) => {
+				return prevClients.filter((client) => client.ID !== clientIdToDelete)
+			})
+		}
+		setIsOpen(false)
+	}
 
 	const handleEditClick = (client: Cliente) => {
 		setSelectedClient(client)

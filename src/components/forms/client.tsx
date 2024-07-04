@@ -1,17 +1,22 @@
 import { useState, useEffect, ChangeEvent } from 'react'
-import { createClient, updateClient } from '@/apiCalls'
+import { createClient, updateClient, deleteClient } from '@/apiCalls'
 import { Cliente } from '@/types/schema.types'
 import InputNewSearch from '../InputNewSearch'
+import { json } from 'stream/consumers'
 
 interface ClientFormProps {
-	onSuccess?: (data: Cliente|unknown) => void
+	onSuccess?: (data: Cliente | unknown) => void
 	onError?: (error: any) => void
 	client: Cliente | null
 }
 
-export default function ClientForm({ onSuccess, onError, client }: ClientFormProps) {
+export default function ClientForm({
+	onSuccess,
+	onError,
+	client,
+}: ClientFormProps) {
 	const [formData, setFormData] = useState<Cliente>({
-    ID:NaN,
+		ID: NaN,
 		Nombre: '',
 		Calle: '',
 		Ciudad: '',
@@ -32,12 +37,33 @@ export default function ClientForm({ onSuccess, onError, client }: ClientFormPro
 		setFormData({ ...formData, [name]: value })
 	}
 
+	const handleDelete = async () => {
+		try {
+			let response: Cliente | unknown = undefined
+			if (client && client.ID) {
+				response = await deleteClient(client.ID)
+				console.log('Client ' + JSON.stringify(client) + ' deleted successfully:', response)
+				if (onSuccess) {
+					onSuccess(client.ID)
+				}
+			}else{
+				throw ('This should never show up in the console =D')
+			}
+			
+		} catch (error) {
+			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
+			if (onError) {
+				onError(error)
+			}
+		}
+	}
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		try {
-			let response:Cliente|unknown = undefined
+			let response: Cliente | unknown = undefined
 			if (client) {
-				response = await updateClient(formData.ID,formData)
+				response = await updateClient(formData.ID, formData)
 				console.log('Client updated successfully:', response)
 			} else {
 				response = await createClient(formData)
@@ -119,6 +145,7 @@ export default function ClientForm({ onSuccess, onError, client }: ClientFormPro
 						Desactivar
 					</button>
 					<button
+						onClick={handleDelete}
 						type="button"
 						className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
 					>
