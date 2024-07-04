@@ -362,7 +362,10 @@ export default function TableExt({
 									className={`hover:bg-gray-200 even:bg-gray-50`}
 								>
 									{row.cells.map((cell, cellIndex) => (
-										<td key={cellIndex} className={classes + (cellIndex === 0?' pl-4':'')}>
+										<td
+											key={cellIndex}
+											className={classes + (cellIndex === 0 ? ' pl-4' : '')}
+										>
 											{cell.type === 'text' && (
 												<Typography
 													variant="small"
