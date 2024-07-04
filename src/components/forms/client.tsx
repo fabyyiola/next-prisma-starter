@@ -1,5 +1,5 @@
-import { useState, ChangeEvent } from 'react'
-import { createClient,updateClient } from '@/apiCalls'
+import { useState, useEffect, ChangeEvent } from 'react'
+import { createClient, updateClient } from '@/apiCalls'
 import { Cliente } from '@/types/schema.types'
 import InputNewSearch from '../InputNewSearch'
 
@@ -11,6 +11,7 @@ interface ClientFormProps {
 
 export default function ClientForm({ onSuccess, onError, client }: ClientFormProps) {
 	const [formData, setFormData] = useState<Cliente>({
+    ID:NaN,
 		Nombre: '',
 		Calle: '',
 		Ciudad: '',
@@ -20,6 +21,12 @@ export default function ClientForm({ onSuccess, onError, client }: ClientFormPro
 		RegimenFiscal: '',
 	})
 
+	useEffect(() => {
+		if (client) {
+			setFormData(client)
+		}
+	}, [client])
+
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target
 		setFormData({ ...formData, [name]: value })
@@ -28,13 +35,18 @@ export default function ClientForm({ onSuccess, onError, client }: ClientFormPro
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		try {
-			const response = await createClient(formData)
-			console.log('Client created successfully:', response)
+			if (client) {
+				const response = await updateClient(1,formData)
+				console.log('Client updated successfully:', response)
+			} else {
+				const response = await createClient(formData)
+				console.log('Client created successfully:', response)
+			}
 			if (onSuccess) {
 				onSuccess(formData)
 			}
 		} catch (error) {
-			console.error('Error creating client:', error)
+			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
 			if (onError) {
 				onError(error)
 			}

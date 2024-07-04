@@ -21,6 +21,7 @@ import {
 	Tooltip,
 } from '@material-tailwind/react'
 import { colors } from '@material-tailwind/react/types/generic'
+import transformObj from '@/utils/transformTableRow'
 
 export interface Tab {
 	label: string
@@ -31,6 +32,7 @@ export interface Tab {
 export interface TableCell {
 	type: 'text' | 'avatar' | 'chip'
 	value: string
+  colName:string
 	subtitle?: string
 	imgSrc?: string
 	chipColor?: colors | undefined
@@ -50,7 +52,7 @@ interface TableExtProps {
 	showAddRecordButton?: boolean
 	showSearchInput?: boolean
 	addRecordButtonText?: string
-	handleOpen?: () => void
+	handleAddClick?: () => void
   handleEditClick?: (row:any) => void
 }
 
@@ -64,7 +66,7 @@ export default function TableExt({
 	showAddRecordButton = false,
 	showSearchInput = false,
 	addRecordButtonText = 'Agregar registro',
-	handleOpen = () => {},
+	handleAddClick = () => {},
   handleEditClick= ()=>{}
 }: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
@@ -147,7 +149,7 @@ export default function TableExt({
 					{showAddRecordButton && (
 						<div className="flex shrink-0 flex-col gap-2 sm:flex-row">
 							<Button
-								onClick={handleOpen}
+								onClick={handleAddClick}
 								className="flex items-center gap-3"
 								size="sm"
 							>
@@ -286,7 +288,7 @@ export default function TableExt({
 									{showEditButton && (
 										<td className={classes}>
 											<Tooltip content="Edit User">
-												<IconButton variant="text" onClick={()=>handleEditClick(row)}>
+												<IconButton variant="text" onClick={()=>handleEditClick(transformObj(row))}>
 													<PencilIcon className="h-4 w-4" />
 												</IconButton>
 											</Tooltip>

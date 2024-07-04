@@ -1,5 +1,6 @@
 // Direcciones
 export interface Direccion {
+	ID:number;
 	Nombre: string;
 	Calle: string;
 	Ciudad: string;
@@ -10,6 +11,7 @@ export interface Direccion {
   
   // Empleados
   export interface Empleado {
+	ID:number;
 	Nombre: string;
 	Direccion: string;
 	Telefono: string;
@@ -25,6 +27,7 @@ export interface Direccion {
   
   // Unidades
   export interface Unidad {
+	ID:number;
 	NoEconomico: number;
 	Placas: string;
 	Marca: string;
@@ -39,6 +42,7 @@ export interface Direccion {
   
   // Usuarios
   export interface Usuario {
+	ID:number;
 	Nombre: string;
 	Email: string;
 	Accesos: string;
@@ -47,6 +51,7 @@ export interface Direccion {
   
   // Clientes
   export interface Cliente {
+	ID:number;
 	Nombre: string;
 	Calle: string;
 	Ciudad: string;
