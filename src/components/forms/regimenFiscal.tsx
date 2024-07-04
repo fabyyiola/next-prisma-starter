@@ -60,6 +60,7 @@ export default function RegimenFiscalForm({
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		e.stopPropagation() // Prevent event from propagating to the parent form
 		try {
 			let response: RegimenFiscal | unknown = undefined
 			if (regimenFiscal) {
@@ -70,6 +71,7 @@ export default function RegimenFiscalForm({
 				console.log('RegimenFiscal created successfully:', response)
 			}
 			if (onSuccess) {
+				console.log('entro!!?')
 				onSuccess(response)
 			}
 		} catch (error) {

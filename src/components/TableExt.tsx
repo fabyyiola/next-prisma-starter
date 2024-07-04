@@ -1,8 +1,8 @@
 /**
  * TableExt Component
- * 
+ *
  * This component renders a customizable table with optional tabs, search functionality, and filtering capabilities.
- * 
+ *
  * STATES:
  * - searchQuery (string): Stores the current search query.
  * - filteredRows (TableRow[]): Stores the rows filtered based on the search query and filters.
@@ -12,7 +12,7 @@
  * - showFilters (boolean): Toggles the visibility of column filters.
  * - sortConfig ({ key: string, direction: 'ascending' | 'descending' } | null): Stores the sorting configuration.
  * - columnFilters (string[]): Stores the column filter values.
- * 
+ *
  * FUNCTIONS:
  * - getMaxColumnLengths (rows: TableRow[]): Returns an object with the maximum length of each column value.
  * - filterRows (query?: string, columnIndex?: number): Filters the table rows based on the search query and column filters.
@@ -23,7 +23,7 @@
  * - sortRows (): Sorts the rows based on the sort configuration.
  * - handleFilterChange (value: string, index: number): Handles the column filter change and filters rows.
  * - toggleFilters (): Toggles the visibility of column filters.
- * 
+ *
  * PARAMETERS:
  * - tabs (Tab[]): Array of tabs to be displayed above the table.
  * - tableHead (string[]): Array of column headers.
@@ -36,7 +36,7 @@
  * - addRecordButtonText (string): Text to be displayed on the add record button.
  * - handleAddClick (): Callback function for add record button click.
  * - handleEditClick (row: any): Callback function for edit button click in each row.
- * 
+ *
  * CONSTANTS:
  * - rowsPerPage (number): Number of rows to be displayed per page.
  * - allTab (Tab): The "All" tab to be displayed in the tabs header.
@@ -435,8 +435,9 @@ export default function TableExt({
 														: maxColumnLengths[head] * 7
 												}px`,
 												borderBottom: '1px solid #d2d2d2',
-												marginRight:'5px',
-												marginLeft:index === 0 && tableHead[0] === 'ID'?'5px':''
+												marginRight: '5px',
+												marginLeft:
+													index === 0 && tableHead[0] === 'ID' ? '5px' : '',
 											}}
 										/>
 									</td>
@@ -512,14 +513,12 @@ export default function TableExt({
 									))}
 									{showEditButton && (
 										<td className={classes}>
-											<Tooltip content="Edit User">
-												<IconButton
-													variant="text"
-													onClick={() => handleEditClick(transformObj(row))}
-												>
-													<PencilIcon className="h-4 w-4" />
-												</IconButton>
-											</Tooltip>
+											<IconButton
+												variant="text"
+												onClick={() => handleEditClick(transformObj(row))}
+											>
+												<PencilIcon className="h-4 w-4" />
+											</IconButton>
 										</td>
 									)}
 								</tr>

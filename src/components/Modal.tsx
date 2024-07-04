@@ -14,7 +14,7 @@ export type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | null
 interface ModalProps {
 	size: ModalSize
 	isOpen: boolean
-	handleOpen: () => void
+	handleOpen: (open?:boolean) => void
 	headerText?: string
 	footerChildren?: React.ReactNode
 	children?: React.ReactNode
@@ -33,7 +33,7 @@ export function Modal({
 			<Dialog open={isOpen} size={size || 'md'} handler={handleOpen}>
 				<DialogHeader className="flex justify-between items-center">
 					{headerText}
-					<IconButton variant="text" color="blue-gray" onClick={handleOpen}>
+					<IconButton variant="text" color="blue-gray" onClick={()=>(handleOpen(false))}>
 						<XMarkIcon className="w-5 h-5" />
 					</IconButton>
 				</DialogHeader>

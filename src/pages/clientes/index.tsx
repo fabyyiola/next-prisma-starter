@@ -36,6 +36,10 @@ const IndexPage = () => {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
 	const [selectedClient, setSelectedClient] = useState<Cliente | null>(null)
 
+	const [alertMessage, setAlertMessage] = useState<string | null>(null)
+	const [alertType, setAlertType] = useState<'info' | 'warning' | 'error' | 'success'>('success')
+	const [alertOpen, setAlertOpen] = useState<boolean>(false)
+
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -62,6 +66,7 @@ const IndexPage = () => {
 			newClient !== null &&
 			'ID' in newClient
 		) {
+			console.log("cliente:",JSON.stringify(newClient))
 			const updatedClient = newClient as Cliente
 			setClients((prevClients: Cliente[]) => {
 				const index = prevClients.findIndex(
@@ -72,20 +77,32 @@ const IndexPage = () => {
 					return [
 						...prevClients.slice(0, index),
 						updatedClient,
-						...prevClients.slice(index + 1),
-					]
+							...prevClients.slice(index + 1),
+						]
 				} else {
 					// Add the new client
 					return [...prevClients, updatedClient]
 				}
 			})
+			setAlertMessage('Client saved successfully')
+			setAlertType('success')
+			setAlertOpen(true)
 		} else if (typeof newClient === 'number') {
 			const clientIdToDelete = newClient
 			setClients((prevClients: Cliente[]) => {
 				return prevClients.filter((client) => client.ID !== clientIdToDelete)
 			})
+			setAlertMessage('Client deleted successfully')
+			setAlertType('success')
+			setAlertOpen(true)
 		}
 		setIsOpen(false)
+	}
+
+	const handleError = (error: string) => {
+		setAlertMessage(error)
+		setAlertType('error')
+		setAlertOpen(true)
 	}
 
 	const handleEditClick = (client: Cliente) => {
@@ -129,8 +146,9 @@ const IndexPage = () => {
 				isOpen={isOpen}
 				handleOpen={handleAddClick}
 			>
-				<ClientForm client={selectedClient} onSuccess={handleSuccess} />
+				<ClientForm client={selectedClient} onSuccess={handleSuccess} onError={handleError} />
 			</Modal>
+			{alertMessage && <NotificationAlert message={alertMessage} type={alertType} open={alertOpen} setOpen={setAlertOpen} />}
 		</div>
 	)
 }

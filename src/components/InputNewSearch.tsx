@@ -1,21 +1,22 @@
-import { useState, ChangeEvent, ReactNode } from 'react'
+import React, { useState, ChangeEvent, ReactNode, ReactElement } from 'react'
 import { Modal } from './Modal'
 
-interface Option {
-  text: string;
-  value: string;
+export interface Option {
+  text: string
+  value: string
 }
 
 interface InputNewSearchProps {
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
-  options: Option[];
-  newNode: ReactNode;
-  searchNode: ReactNode;
-  newModalTitle?: string;
-  searchModalTitle?: string;
+  label: string
+  name: string
+  value: string
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void
+  options: Option[]
+  newNode: ReactElement // Change this to ReactElement
+  searchNode: ReactNode
+  newModalTitle?: string
+  searchModalTitle?: string
+  onNewSuccess?: () => void // Add this prop
 }
 
 export default function InputNewSearch({
@@ -28,13 +29,14 @@ export default function InputNewSearch({
   searchNode,
   newModalTitle = 'Agregar registro',
   searchModalTitle = 'Buscar registro',
+  onNewSuccess = ()=>{}, 
 }: InputNewSearchProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [btnClicked, setBtnClicked] = useState<'new' | 'search' | undefined>(
-    undefined
-  )
-  const handleModal = () => {
-    setIsOpen(!isOpen)
+  const [btnClicked, setBtnClicked] = useState<'new' | 'search' | undefined>(undefined)
+  
+  const handleModal = (value?: boolean) => {
+    if (value) setIsOpen(value)
+    else setIsOpen(!isOpen)
   }
 
   return (
@@ -46,7 +48,6 @@ export default function InputNewSearch({
         <div className="flex mt-1">
           <button
             onClick={() => {
-              console.log('1')
               setBtnClicked('new')
               handleModal()
             }}
@@ -61,7 +62,7 @@ export default function InputNewSearch({
             onChange={onChange}
             className="flex-grow px-3 py-2 border-t border-b border-gray-300 shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
           >
-            {options.map(option => (
+            {options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.text}
               </option>
@@ -69,7 +70,6 @@ export default function InputNewSearch({
           </select>
           <button
             onClick={() => {
-              console.log('2')
               setBtnClicked('search')
               handleModal()
             }}
@@ -97,9 +97,9 @@ export default function InputNewSearch({
         headerText={btnClicked === 'new' ? newModalTitle : searchModalTitle}
         size={'md'}
         isOpen={isOpen}
-        handleOpen={()=>{handleModal;console.log('1')}}
+        handleOpen={(val?: boolean) => { handleModal(val) }}
       >
-        {btnClicked === 'new' ? newNode : searchNode}
+        {btnClicked === 'new' ? React.cloneElement(newNode, { onSuccess: () => { handleModal(false); onNewSuccess(); } }) : searchNode}
       </Modal>
     </>
   )

@@ -6,13 +6,12 @@ import {
 	fetchRegimenFiscales,
 } from '@/apiCalls'
 import { Cliente } from '@/types/schema.types'
-import InputNewSearch from '../InputNewSearch'
-import RegimenFiscalForm from './regimenFiscal'
-import { NotificationAlert } from '../NotificationAlert' // Import the NotificationAlert component
+import InputNewSearch, { Option } from '@/components/InputNewSearch'
+import RegimenFiscalForm from '@/components/forms/regimenFiscal'
 
 interface ClientFormProps {
 	onSuccess?: (data: Cliente | unknown) => void
-	onError?: (error: any) => void
+	onError?: (error: string) => void
 	client?: Cliente | null
 }
 
@@ -36,33 +35,32 @@ export default function ClientForm({
 		{ text: string; value: string }[]
 	>([])
 
-	const [alertMessage, setAlertMessage] = useState<string | null>(null)
-	const [alertType, setAlertType] = useState<
-		'info' | 'warning' | 'error' | 'success'
-	>('success')
-
 	useEffect(() => {
 		if (client) {
 			setFormData(client)
 		}
 	}, [client])
 
-	useEffect(() => {
-		async function loadRegimenesFiscales() {
-			try {
-				const response: any = await fetchRegimenFiscales()
-				const options = response.map((regimen: { Nombre: string }) => ({
-					text: regimen.Nombre,
-					value: regimen.Nombre,
-				}))
-				setRegimenesFiscales(options)
-			} catch (error) {
-				setAlertMessage('Failed to fetch regimenes fiscales')
-				setAlertType('error')
+	const loadRegimenesFiscales = async () => {
+		try {
+			const response: any = await fetchRegimenFiscales()
+			const options = response.map((regimen: { Nombre: string }) => ({
+				text: regimen.Nombre,
+				value: regimen.Nombre,
+			}))
+			// Sort the options alphabetically
+			options.sort((a:Option, b:Option) => a.text.localeCompare(b.text))
+			setRegimenesFiscales(options)
+		} catch (error) {
+			if (onError) {
+				onError('Failed to fetch regimenes fiscales')
 			}
 		}
+	}
+
+	useEffect(() => {
 		loadRegimenesFiscales()
-	}, [])
+	}, [onError])
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target
@@ -79,8 +77,6 @@ export default function ClientForm({
 			let response: Cliente | unknown = undefined
 			if (client && client.ID) {
 				response = await deleteClient(client.ID)
-				setAlertMessage('Client deleted successfully')
-				setAlertType('success')
 				if (onSuccess) {
 					onSuccess(client.ID)
 				}
@@ -88,44 +84,37 @@ export default function ClientForm({
 				throw 'Unhandled error: Client ID is missing'
 			}
 		} catch (error) {
-			setAlertMessage(`Error deleting client: ${error}`)
-			setAlertType('error')
 			if (onError) {
-				onError(error)
+				onError(`Error deleting client: ${error}`)
 			}
 		}
 	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		e.stopPropagation() // Prevent event from propagating to the parent form
 		try {
 			let response: Cliente | unknown = undefined
 			if (client) {
 				response = await updateClient(formData.ID, formData)
-				setAlertMessage('Client updated successfully')
-				setAlertType('success')
+				if (onSuccess) {
+					onSuccess(response)
+				}
 			} else {
 				response = await createClient(formData)
-				setAlertMessage('Client created successfully')
-				setAlertType('success')
-			}
-			if (onSuccess) {
-				onSuccess(response)
+				if (onSuccess) {
+					onSuccess(response)
+				}
 			}
 		} catch (error) {
-			setAlertMessage(`Unhandled error: ${error}`)
-			setAlertType('error')
 			if (onError) {
-				onError(error)
+				onError(`Unhandled error: ${error}`)
 			}
 		}
 	}
 
 	return (
 		<div className="mx-auto bg-white rounded-md">
-			{alertMessage && (
-				<NotificationAlert message={alertMessage} type={alertType} />
-			)}
 			<form onSubmit={handleSubmit}>
 				<div className="flex flex-wrap -mx-2">
 					{[
@@ -182,8 +171,11 @@ export default function ClientForm({
 							name="RegimenFiscal"
 							value={formData.RegimenFiscal}
 							onChange={handleDropdownChange}
-							newNode={<RegimenFiscalForm />}
+							newNode={<RegimenFiscalForm onSuccess={loadRegimenesFiscales} />}
+							newModalTitle="Agregar regimen fiscal"
+							searchModalTitle="Buscar regimen fiscal"
 							searchNode={<>Search Node</>}
+							onNewSuccess={loadRegimenesFiscales} // Pass this prop to refresh the dropdown
 						/>
 					</div>
 				</div>
