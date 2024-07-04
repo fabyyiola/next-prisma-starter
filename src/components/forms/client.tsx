@@ -42,14 +42,16 @@ export default function ClientForm({
 			let response: Cliente | unknown = undefined
 			if (client && client.ID) {
 				response = await deleteClient(client.ID)
-				console.log('Client ' + JSON.stringify(client) + ' deleted successfully:', response)
+				console.log(
+					'Client ' + JSON.stringify(client) + ' deleted successfully:',
+					response
+				)
 				if (onSuccess) {
 					onSuccess(client.ID)
 				}
-			}else{
-				throw ('This should never show up in the console =D')
+			} else {
+				throw 'This should never show up in the console =D'
 			}
-			
 		} catch (error) {
 			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
 			if (onError) {
@@ -138,19 +140,23 @@ export default function ClientForm({
 					onChange={handleChange}
 				/>
 				<div className="flex justify-end space-x-4">
-					<button
-						type="button"
-						className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none"
-					>
-						Desactivar
-					</button>
-					<button
-						onClick={handleDelete}
-						type="button"
-						className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
-					>
-						Eliminar
-					</button>
+					{client && (
+						<>
+							<button
+								type="button"
+								className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none"
+							>
+								Desactivar
+							</button>
+							<button
+								onClick={handleDelete}
+								type="button"
+								className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
+							>
+								Eliminar
+							</button>
+						</>
+					)}
 					<button
 						type="submit"
 						className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 focus:outline-none"
