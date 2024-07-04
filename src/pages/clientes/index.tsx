@@ -111,8 +111,8 @@ const IndexPage = () => {
 		<div>
 			<TableExt
 				tabs={TABS}
-				title="Clients List"
-				subtitle="See information about all clients"
+				title="Listado de clientes"
+				subtitle="En este modulo usted puede crear, modificar, eliminar o desactivar clientes."
 				tableHead={TABLE_HEAD}
 				tableRows={tableRows}
 				showEditButton={true}

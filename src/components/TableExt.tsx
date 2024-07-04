@@ -73,6 +73,9 @@ export default function TableExt({
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
 	const [activeTabValue, setActiveTabValue] = useState<string>('all')
 	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
+	const [currentPage, setCurrentPage] = useState<number>(1)
+	const rowsPerPage = 10
+	const totalPages = Math.ceil(filteredRows.length / rowsPerPage)
 
 	// Update filtered rows whenever initialTableRows or tabs change
 	useEffect(() => {
@@ -86,6 +89,7 @@ export default function TableExt({
 	) => {
 		if (changeInputVal) setSearchQuery(query)
 		filterRows(query, columnIndex)
+		setCurrentPage(1) // Reset to first page on new search
 	}
 
 	const filterRows = (query?: string, columnIndex?: number) => {
@@ -110,7 +114,10 @@ export default function TableExt({
 			} else if (query == '' && activeTabValue != 'all') {
 				filteredRowsCopy = initialTableRows.filter((row) => {
 					const cell = row.cells[activeTabColIndex]
-					return cell && cell.value.toLowerCase().includes(activeTabValue.toLowerCase())
+					return (
+						cell &&
+						cell.value.toLowerCase().includes(activeTabValue.toLowerCase())
+					)
 				})
 			}
 			console.log('check:', query, activeTabValue)
@@ -118,7 +125,7 @@ export default function TableExt({
 		}
 	}
 
-	const handleTabChange = (value: string,colIndex:number) => {
+	const handleTabChange = (value: string, colIndex: number) => {
 		setActiveTabValue(value)
 		setActiveTabColIndex(colIndex)
 		if (value === 'all') {
@@ -130,9 +137,22 @@ export default function TableExt({
 				filterRows(value, columnIndex)
 			}
 		}
+		setCurrentPage(1) // Reset to first page on tab change
+	}
+
+	const handlePageChange = (newPage: number) => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
 	}
 
 	const allTab: Tab = { label: 'All', value: 'all', columnIndex: -1 }
+	const paginatedRows = filteredRows.slice(
+		(currentPage - 1) * rowsPerPage,
+		currentPage * rowsPerPage
+	)
+	const headerPadding = '2'
+	const cellsPadding = '0'
 	return (
 		<Card className="h-full w-full">
 			<CardHeader floated={false} shadow={false} className="rounded-none">
@@ -164,7 +184,7 @@ export default function TableExt({
 							{[allTab, ...tabs].map(({ label, value, columnIndex }) => (
 								<Tab
 									onClick={() => {
-										handleTabChange(value,columnIndex)
+										handleTabChange(value, columnIndex)
 										handleSearch(value, columnIndex, false)
 									}}
 									key={value}
@@ -195,7 +215,11 @@ export default function TableExt({
 							{tableHead.map((head, index) => (
 								<th
 									key={head}
-									className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50"
+									className={
+										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-' +
+										headerPadding +
+										' transition-colors hover:bg-blue-gray-50'
+									}
 								>
 									<Typography
 										variant="small"
@@ -210,7 +234,7 @@ export default function TableExt({
 								</th>
 							))}
 							{showEditButton && (
-								<th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50">
+								<th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 transition-colors hover:bg-blue-gray-50">
 									<Typography
 										variant="small"
 										color="blue-gray"
@@ -223,16 +247,16 @@ export default function TableExt({
 						</tr>
 					</thead>
 					<tbody>
-						{filteredRows.map((row, rowIndex) => {
-							const isLast = rowIndex === filteredRows.length - 1
+						{paginatedRows.map((row, rowIndex) => {
+							const isLast = rowIndex === paginatedRows.length - 1
 							const classes = isLast
-								? 'p-4'
-								: 'p-4 border-b border-blue-gray-50'
+								? 'p-' + cellsPadding
+								: 'p-' + cellsPadding + ' border-b border-blue-gray-50'
 
 							return (
 								<tr key={rowIndex}>
 									{row.cells.map((cell, cellIndex) => (
-										<td key={cellIndex} className={classes}>
+										<td key={cellIndex} className={classes + (cell.colName === 'ID'? ' pl-3':'')}>
 											{cell.type === 'text' && (
 												<Typography
 													variant="small"
@@ -299,15 +323,27 @@ export default function TableExt({
 					</tbody>
 				</table>
 			</CardBody>
-			<CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+			<CardFooter
+				className="flex items-center justify-between border-t border-blue-gray-50 p-4"
+			>
 				<Typography variant="small" color="blue-gray" className="font-normal">
-					Page 1 of 10
+					Page {currentPage} of {totalPages}
 				</Typography>
 				<div className="flex gap-2">
-					<Button variant="outlined" size="sm">
+					<Button
+						variant="outlined"
+						size="sm"
+						onClick={() => handlePageChange(currentPage - 1)}
+						disabled={currentPage === 1}
+					>
 						Previous
 					</Button>
-					<Button variant="outlined" size="sm">
+					<Button
+						variant="outlined"
+						size="sm"
+						onClick={() => handlePageChange(currentPage + 1)}
+						disabled={currentPage === totalPages}
+					>
 						Next
 					</Button>
 				</div>
