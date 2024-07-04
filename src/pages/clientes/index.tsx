@@ -7,13 +7,13 @@ import ClientForm from '@/components/forms/client'
 
 const TABS: Tab[] = [
 	{
-		label: 'EdoMX',
-		value: 'Edo mexico',
+		label: 'BJS',
+		value: 'Baja California',
 		columnIndex: 4,
 	},
 	{
-		label: 'NL',
-		value: 'NL',
+		label: 'Chiapas',
+		value: 'Chiapas',
 		columnIndex: 4,
 	},
 ]

@@ -3,7 +3,7 @@ import {
 	MagnifyingGlassIcon,
 	ChevronUpDownIcon,
 } from '@heroicons/react/24/outline'
-import { PencilIcon, UserPlusIcon } from '@heroicons/react/24/solid'
+import { PencilIcon, UserPlusIcon, FunnelIcon } from '@heroicons/react/24/solid'
 import {
 	Card,
 	CardHeader,
@@ -74,13 +74,25 @@ export default function TableExt({
 	const [activeTabValue, setActiveTabValue] = useState<string>('all')
 	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
 	const [currentPage, setCurrentPage] = useState<number>(1)
+	const [showFilters, setShowFilters] = useState<boolean>(false)
 	const rowsPerPage = 10
 	const totalPages = Math.ceil(filteredRows.length / rowsPerPage)
+	const [sortConfig, setSortConfig] = useState<{
+		key: string
+		direction: 'ascending' | 'descending'
+	} | null>(null)
+	const [columnFilters, setColumnFilters] = useState<string[]>(
+		Array(tableHead.length).fill('')
+	)
 
 	// Update filtered rows whenever initialTableRows or tabs change
 	useEffect(() => {
 		filterRows()
-	}, [initialTableRows, tabs])
+	}, [initialTableRows, tabs, columnFilters])
+
+	useEffect(() => {
+		sortRows()
+	}, [sortConfig, filteredRows])
 
 	const handleSearch = (
 		query: string,
@@ -91,19 +103,27 @@ export default function TableExt({
 		filterRows(query, columnIndex)
 		setCurrentPage(1) // Reset to first page on new search
 	}
-
 	const filterRows = (query?: string, columnIndex?: number) => {
 		let filteredRowsCopy = [...initialTableRows]
-		console.log('query:', query)
 		if (query == 'all') {
 			setFilteredRows(filteredRowsCopy)
 		} else {
 			if (query && columnIndex !== undefined) {
 				// Filter by both query and specified columnIndex
-				filteredRowsCopy = initialTableRows.filter((row) => {
+				console.log('initRows:', initialTableRows)
+				filteredRowsCopy = initialTableRows.filter((row, idx) => {
 					const cell = row.cells[columnIndex]
+					console.log(
+						'query:',
+						query,
+						'\n object:',
+						JSON.stringify(cell),
+						' res:',
+						cell.value.toLowerCase().includes(query.toLowerCase())
+					)
 					return cell && cell.value.toLowerCase().includes(query.toLowerCase())
 				})
+				console.log('finalRows:', filteredRowsCopy)
 			} else if (query && query != '') {
 				// Filter by query across all columns
 				filteredRowsCopy = filteredRows.filter((row) => {
@@ -120,9 +140,16 @@ export default function TableExt({
 					)
 				})
 			}
-			console.log('check:', query, activeTabValue)
 			setFilteredRows(filteredRowsCopy)
 		}
+		if (columnFilters.some((filter) => filter !== '')) {
+			filteredRowsCopy = filteredRowsCopy.filter((row) =>
+				row.cells.every((cell, index) =>
+					cell.value.toLowerCase().includes(columnFilters[index].toLowerCase())
+				)
+			)
+		}
+		setFilteredRows(filteredRowsCopy)
 	}
 
 	const handleTabChange = (value: string, colIndex: number) => {
@@ -134,6 +161,7 @@ export default function TableExt({
 			const selectedTab = tabs.find((tab) => tab.value === value)
 			if (selectedTab) {
 				const { columnIndex, value } = selectedTab
+				console.log(value, columnIndex)
 				filterRows(value, columnIndex)
 			}
 		}
@@ -146,13 +174,57 @@ export default function TableExt({
 		}
 	}
 
+	const handleSort = (columnIndex: number) => {
+		let key = tableHead[columnIndex]
+		let direction: 'ascending' | 'descending' = 'ascending'
+		if (
+			sortConfig &&
+			sortConfig.key === key &&
+			sortConfig.direction === 'ascending'
+		) {
+			direction = 'descending'
+		}
+		setSortConfig({ key, direction })
+	}
+
+	const sortRows = () => {
+		if (sortConfig !== null) {
+			const sortedRows = [...filteredRows].sort((a, b) => {
+				let aValue =
+					a.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
+				let bValue =
+					b.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
+
+				if (aValue < bValue) {
+					return sortConfig.direction === 'ascending' ? -1 : 1
+				}
+				if (aValue > bValue) {
+					return sortConfig.direction === 'ascending' ? 1 : -1
+				}
+				return 0
+			})
+			setFilteredRows(sortedRows)
+		}
+	}
+
+	const handleFilterChange = (value: string, index: number) => {
+		const newFilters = [...columnFilters]
+		newFilters[index] = value
+		setColumnFilters(newFilters)
+		filterRows()
+	}
+
+	const toggleFilters = () => {
+		setShowFilters(!showFilters)
+	}
+
 	const allTab: Tab = { label: 'All', value: 'all', columnIndex: -1 }
 	const paginatedRows = filteredRows.slice(
 		(currentPage - 1) * rowsPerPage,
 		currentPage * rowsPerPage
 	)
-	const headerPadding = '2'
 	const cellsPadding = '0'
+	const headersPadding = '2'
 	return (
 		<Card className="h-full w-full">
 			<CardHeader floated={false} shadow={false} className="rounded-none">
@@ -167,6 +239,14 @@ export default function TableExt({
 					</div>
 					{showAddRecordButton && (
 						<div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+							<Button
+								onClick={toggleFilters}
+								className="flex items-center gap-3"
+								variant="outlined"
+								size="sm"
+							>
+								<FunnelIcon strokeWidth={2} className="h-4 w-4" /> Filtrar
+							</Button>
 							<Button
 								onClick={handleAddClick}
 								className="flex items-center gap-3"
@@ -185,7 +265,6 @@ export default function TableExt({
 								<Tab
 									onClick={() => {
 										handleTabChange(value, columnIndex)
-										handleSearch(value, columnIndex, false)
 									}}
 									key={value}
 									value={value}
@@ -215,9 +294,10 @@ export default function TableExt({
 							{tableHead.map((head, index) => (
 								<th
 									key={head}
+									onClick={() => handleSort(index)}
 									className={
 										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-' +
-										headerPadding +
+										headersPadding +
 										' transition-colors hover:bg-blue-gray-50'
 									}
 								>
@@ -227,14 +307,18 @@ export default function TableExt({
 										className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
 									>
 										{head}{' '}
-										{index !== tableHead.length - 1 && (
-											<ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
-										)}
+										<ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
 									</Typography>
 								</th>
 							))}
 							{showEditButton && (
-								<th className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-2 transition-colors hover:bg-blue-gray-50">
+								<th
+									className={
+										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-' +
+										headersPadding +
+										' transition-colors hover:bg-blue-gray-50'
+									}
+								>
 									<Typography
 										variant="small"
 										color="blue-gray"
@@ -245,18 +329,40 @@ export default function TableExt({
 								</th>
 							)}
 						</tr>
+						{showFilters && (
+							<tr>
+								{tableHead.map((head, index) => (
+									<th key={index} className="p-2">
+										<Input
+											crossOrigin={''}
+											value={columnFilters[index]}
+											onChange={(e) =>
+												handleFilterChange(e.target.value, index)
+											}
+											placeholder="Buscar"
+										/>
+									</th>
+								))}
+								{showEditButton && (
+									<th className="p-2">{/* Empty cell for actions column */}</th>
+								)}
+							</tr>
+						)}
 					</thead>
 					<tbody>
 						{paginatedRows.map((row, rowIndex) => {
 							const isLast = rowIndex === paginatedRows.length - 1
 							const classes = isLast
-								? 'p-' + cellsPadding
-								: 'p-' + cellsPadding + ' border-b border-blue-gray-50'
+								? 'p-0'
+								: 'p-0 border-b border-blue-gray-50'
 
 							return (
-								<tr key={rowIndex}>
+								<tr
+									key={rowIndex}
+									className={`hover:bg-gray-200 even:bg-gray-50`}
+								>
 									{row.cells.map((cell, cellIndex) => (
-										<td key={cellIndex} className={classes + (cell.colName === 'ID'? ' pl-3':'')}>
+										<td key={cellIndex} className={classes + (cellIndex === 0?' pl-4':'')}>
 											{cell.type === 'text' && (
 												<Typography
 													variant="small"
@@ -323,9 +429,7 @@ export default function TableExt({
 					</tbody>
 				</table>
 			</CardBody>
-			<CardFooter
-				className="flex items-center justify-between border-t border-blue-gray-50 p-4"
-			>
+			<CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
 				<Typography variant="small" color="blue-gray" className="font-normal">
 					Page {currentPage} of {totalPages}
 				</Typography>
