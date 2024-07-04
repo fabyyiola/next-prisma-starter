@@ -55,10 +55,26 @@ const IndexPage = () => {
 		setIsOpen(!isOpen)
 	}
 
-	const handleSuccess = (newClient: Cliente) => {
-		setClients((prevClients) => [...prevClients, newClient])
-		setIsOpen(false)
-	}
+	const handleSuccess = (newClient: Cliente | unknown) => {
+    if (typeof newClient === 'object' && newClient !== null && 'ID' in newClient) {
+        const updatedClient = newClient as Cliente;
+        setClients((prevClients: Cliente[]) => {
+            const index = prevClients.findIndex(client => client.ID === updatedClient.ID);
+            if (index !== -1) {
+                // Replace the existing client with the updated client
+                return [
+                    ...prevClients.slice(0, index),
+                    updatedClient,
+                    ...prevClients.slice(index + 1),
+                ];
+            } else {
+                // Add the new client
+                return [...prevClients, updatedClient];
+            }
+        });
+    }
+    setIsOpen(false);
+};
 
 	const handleEditClick = (client: Cliente) => {
 		setSelectedClient(client)

@@ -4,7 +4,7 @@ import { Cliente } from '@/types/schema.types'
 import InputNewSearch from '../InputNewSearch'
 
 interface ClientFormProps {
-	onSuccess?: (data: Cliente) => void
+	onSuccess?: (data: Cliente|unknown) => void
 	onError?: (error: any) => void
 	client: Cliente | null
 }
@@ -35,15 +35,16 @@ export default function ClientForm({ onSuccess, onError, client }: ClientFormPro
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		try {
+			let response:Cliente|unknown = undefined
 			if (client) {
-				const response = await updateClient(1,formData)
+				response = await updateClient(formData.ID,formData)
 				console.log('Client updated successfully:', response)
 			} else {
-				const response = await createClient(formData)
+				response = await createClient(formData)
 				console.log('Client created successfully:', response)
 			}
 			if (onSuccess) {
-				onSuccess(formData)
+				onSuccess(response)
 			}
 		} catch (error) {
 			console.error(`Error ${client ? 'updating' : 'creating'} client:`, error)
