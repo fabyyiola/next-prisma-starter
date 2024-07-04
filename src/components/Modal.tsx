@@ -5,7 +5,9 @@ import {
 	DialogHeader,
 	DialogBody,
 	DialogFooter,
+	IconButton,
 } from '@material-tailwind/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 export type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | null
 
@@ -29,7 +31,12 @@ export function Modal({
 	return (
 		<>
 			<Dialog open={isOpen} size={size || 'md'} handler={handleOpen}>
-				<DialogHeader>{headerText}</DialogHeader>
+				<DialogHeader className="flex justify-between items-center">
+					{headerText}
+					<IconButton variant="text" color="blue-gray" onClick={handleOpen}>
+						<XMarkIcon className="w-5 h-5" />
+					</IconButton>
+				</DialogHeader>
 				<DialogBody>{children}</DialogBody>
 				{footerChildren ? <DialogFooter>footerChildren</DialogFooter> : <></>}
 			</Dialog>

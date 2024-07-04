@@ -2,7 +2,6 @@ import { useState, useEffect, ChangeEvent } from 'react'
 import { createClient, updateClient, deleteClient } from '@/apiCalls'
 import { Cliente } from '@/types/schema.types'
 import InputNewSearch from '../InputNewSearch'
-import { json } from 'stream/consumers'
 
 interface ClientFormProps {
 	onSuccess?: (data: Cliente | unknown) => void
@@ -85,69 +84,67 @@ export default function ClientForm({
 	return (
 		<div className="mx-auto bg-white rounded-md">
 			<form onSubmit={handleSubmit}>
-				{[
-					{
-						label: 'Nombre',
-						placeholder: 'Nombre',
-						name: 'Nombre',
-						type: 'text',
-					},
-					{
-						label: 'Calle y num',
-						placeholder: 'Calle y num',
-						name: 'Calle',
-						type: 'text',
-					},
-					{
-						label: 'Ciudad',
-						placeholder: 'Ciudad',
-						name: 'Ciudad',
-						type: 'text',
-					},
-					{
-						label: 'Estado',
-						placeholder: 'Estado',
-						name: 'Estado',
-						type: 'text',
-					},
-					{
-						label: 'Codigo Postal',
-						placeholder: 'Codigo Postal',
-						name: 'CodigoPostal',
-						type: 'text',
-					},
-					{ label: 'RFC', placeholder: 'RFC', name: 'RFC', type: 'text' },
-				].map(({ label, placeholder, name, type }) => (
-					<div key={name} className="mb-4">
-						<label className="block text-sm font-medium text-gray-700">
-							<span className="text-red-500">*</span> {label}:
-						</label>
-						<input
-							type={type}
-							name={name}
-							placeholder={placeholder}
-							value={formData[name as keyof Cliente]}
+				<div className="flex flex-wrap -mx-2">
+					{[
+						{
+							label: 'Nombre',
+							placeholder: 'Nombre',
+							name: 'Nombre',
+							type: 'text',
+						},
+						{
+							label: 'Calle y num',
+							placeholder: 'Calle y num',
+							name: 'Calle',
+							type: 'text',
+						},
+						{
+							label: 'Ciudad',
+							placeholder: 'Ciudad',
+							name: 'Ciudad',
+							type: 'text',
+						},
+						{
+							label: 'Estado',
+							placeholder: 'Estado',
+							name: 'Estado',
+							type: 'text',
+						},
+						{
+							label: 'Codigo Postal',
+							placeholder: 'Codigo Postal',
+							name: 'CodigoPostal',
+							type: 'text',
+						},
+						{ label: 'RFC', placeholder: 'RFC', name: 'RFC', type: 'text' },
+					].map(({ label, placeholder, name, type }) => (
+						<div key={name} className="w-full md:w-1/2 px-2 mb-4">
+							<label className="block text-sm font-medium text-gray-700">
+								<span className="text-red-500">*</span> {label}:
+							</label>
+							<input
+								type={type}
+								name={name}
+								placeholder={placeholder}
+								value={formData[name as keyof Cliente]}
+								onChange={handleChange}
+								className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+							/>
+						</div>
+					))}
+					<div className="w-full md:w-1/2 px-2 mb-4">
+						<InputNewSearch
+							label="Regimen fiscal"
+							placeholder="RESICO, Serv. Profesionales, etc"
+							name="RegimenFiscal"
+							value={formData.RegimenFiscal}
 							onChange={handleChange}
-							className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
 						/>
 					</div>
-				))}
-				<InputNewSearch
-					label="Regimen fiscal"
-					placeholder="RESICO, Serv. Profesionales, etc"
-					name="RegimenFiscal"
-					value={formData.RegimenFiscal}
-					onChange={handleChange}
-				/>
+				</div>
 				<div className="flex justify-end space-x-4">
 					{client && (
 						<>
-							<button
-								type="button"
-								className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none"
-							>
-								Desactivar
-							</button>
 							<button
 								onClick={handleDelete}
 								type="button"
@@ -161,7 +158,7 @@ export default function ClientForm({
 						type="submit"
 						className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 focus:outline-none"
 					>
-						Guardar
+						{client ? "Actualizar" : "Guardar"}
 					</button>
 				</div>
 			</form>

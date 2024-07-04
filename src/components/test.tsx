@@ -56,6 +56,22 @@ interface TableExtProps {
 	handleEditClick?: (row: any) => void
 }
 
+const getMaxColumnLengths = (rows: TableRow[]): { [key: string]: number } => {
+	const maxLengths: { [key: string]: number } = {}
+
+	rows.forEach(row => {
+		row.cells.forEach(cell => {
+			const { colName, value } = cell
+
+			if (!maxLengths[colName] || value.length > maxLengths[colName]) {
+				maxLengths[colName] = value.length
+			}
+		})
+	})
+
+	return maxLengths
+}
+
 export default function TableExt({
 	tabs = [],
 	tableHead = [],
@@ -85,7 +101,8 @@ export default function TableExt({
 		Array(tableHead.length).fill('')
 	)
 
-	// Update filtered rows whenever initialTableRows or tabs change
+	const maxColumnLengths = getMaxColumnLengths(initialTableRows)
+
 	useEffect(() => {
 		filterRows()
 	}, [initialTableRows, tabs, columnFilters])
@@ -103,26 +120,25 @@ export default function TableExt({
 		filterRows(query, columnIndex)
 		setCurrentPage(1) // Reset to first page on new search
 	}
+
 	const filterRows = (query?: string, columnIndex?: number) => {
 		let filteredRowsCopy = [...initialTableRows]
-		if (query == 'all') {
+		if (query === 'all') {
 			setFilteredRows(filteredRowsCopy)
 		} else {
 			if (query && columnIndex !== undefined) {
-				// Filter by both query and specified columnIndex
-				filteredRowsCopy = initialTableRows.filter((row, idx) => {
+				filteredRowsCopy = initialTableRows.filter(row => {
 					const cell = row.cells[columnIndex]
 					return cell && cell.value.toLowerCase().includes(query.toLowerCase())
 				})
-			} else if (query && query != '') {
-				// Filter by query across all columns
-				filteredRowsCopy = filteredRows.filter((row) => {
-					return row.cells.some((cell) =>
+			} else if (query && query !== '') {
+				filteredRowsCopy = filteredRows.filter(row => {
+					return row.cells.some(cell =>
 						cell.value.toLowerCase().includes(query.toLowerCase())
 					)
 				})
-			} else if (query == '' && activeTabValue != 'all') {
-				filteredRowsCopy = initialTableRows.filter((row) => {
+			} else if (query === '' && activeTabValue !== 'all') {
+				filteredRowsCopy = initialTableRows.filter(row => {
 					const cell = row.cells[activeTabColIndex]
 					return (
 						cell &&
@@ -132,8 +148,8 @@ export default function TableExt({
 			}
 			setFilteredRows(filteredRowsCopy)
 		}
-		if (columnFilters.some((filter) => filter !== '')) {
-			filteredRowsCopy = filteredRowsCopy.filter((row) =>
+		if (columnFilters.some(filter => filter !== '')) {
+			filteredRowsCopy = filteredRowsCopy.filter(row =>
 				row.cells.every((cell, index) =>
 					cell.value.toLowerCase().includes(columnFilters[index].toLowerCase())
 				)
@@ -148,7 +164,7 @@ export default function TableExt({
 		if (value === 'all') {
 			setFilteredRows(initialTableRows)
 		} else {
-			const selectedTab = tabs.find((tab) => tab.value === value)
+			const selectedTab = tabs.find(tab => tab.value === value)
 			if (selectedTab) {
 				const { columnIndex, value } = selectedTab
 				filterRows(value, columnIndex)
@@ -327,6 +343,26 @@ export default function TableExt({
 						</tr>
 					</thead>
 					<tbody>
+						{showFilters && (
+							<tr>
+								{tableHead.map((head, index) => (
+									<td key={index} className="p-0">
+										<input
+											value={columnFilters[index]}
+											onChange={(e) =>
+												handleFilterChange(e.target.value, index)
+											}
+											className="p-1 "
+											style={{ maxWidth: `${maxColumnLengths[head] * 15}px` }}
+											placeholder="Buscar"
+										/>
+									</td>
+								))}
+								{showEditButton && (
+									<td className="p-2">{/* Empty cell for actions column */}</td>
+								)}
+							</tr>
+						)}
 						{paginatedRows.map((row, rowIndex) => {
 							const isLast = rowIndex === paginatedRows.length - 1
 							const classes = isLast
