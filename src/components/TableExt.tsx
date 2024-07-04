@@ -105,25 +105,16 @@ export default function TableExt({
 	}
 	const filterRows = (query?: string, columnIndex?: number) => {
 		let filteredRowsCopy = [...initialTableRows]
+		console.log(initialTableRows)
 		if (query == 'all') {
 			setFilteredRows(filteredRowsCopy)
 		} else {
 			if (query && columnIndex !== undefined) {
 				// Filter by both query and specified columnIndex
-				console.log('initRows:', initialTableRows)
 				filteredRowsCopy = initialTableRows.filter((row, idx) => {
 					const cell = row.cells[columnIndex]
-					console.log(
-						'query:',
-						query,
-						'\n object:',
-						JSON.stringify(cell),
-						' res:',
-						cell.value.toLowerCase().includes(query.toLowerCase())
-					)
 					return cell && cell.value.toLowerCase().includes(query.toLowerCase())
 				})
-				console.log('finalRows:', filteredRowsCopy)
 			} else if (query && query != '') {
 				// Filter by query across all columns
 				filteredRowsCopy = filteredRows.filter((row) => {
@@ -161,7 +152,6 @@ export default function TableExt({
 			const selectedTab = tabs.find((tab) => tab.value === value)
 			if (selectedTab) {
 				const { columnIndex, value } = selectedTab
-				console.log(value, columnIndex)
 				filterRows(value, columnIndex)
 			}
 		}
@@ -225,6 +215,9 @@ export default function TableExt({
 	)
 	const cellsPadding = '0'
 	const headersPadding = '2'
+
+	const isScrollable = tableHead.length > 9 // 8 columns + 1 actions column
+
 	return (
 		<Card className="h-full w-full">
 			<CardHeader floated={false} shadow={false} className="rounded-none">
@@ -287,8 +280,12 @@ export default function TableExt({
 					)}
 				</div>
 			</CardHeader>
-			<CardBody className="overflow-scroll px-0">
-				<table className="mt-4 w-full min-w-max table-auto text-left">
+			<CardBody className={`px-0 ${isScrollable ? 'overflow-x-scroll' : ''}`}>
+				<table
+					className={`mt-4 w-full ${
+						isScrollable ? 'min-w-max' : ''
+					} table-auto text-left`}
+				>
 					<thead>
 						<tr>
 							{tableHead.map((head, index) => (
@@ -329,27 +326,28 @@ export default function TableExt({
 								</th>
 							)}
 						</tr>
-						{showFilters && (
+					</thead>
+					<tbody>
+					{showFilters && (
 							<tr>
 								{tableHead.map((head, index) => (
-									<th key={index} className="p-2">
-										<Input
-											crossOrigin={''}
+									<td key={index} className="p-0">
+										<input
 											value={columnFilters[index]}
 											onChange={(e) =>
 												handleFilterChange(e.target.value, index)
 											}
+											className='p-1 '
+											style={{  }}
 											placeholder="Buscar"
 										/>
-									</th>
+									</td>
 								))}
 								{showEditButton && (
-									<th className="p-2">{/* Empty cell for actions column */}</th>
+									<td className="p-2">{/* Empty cell for actions column */}</td>
 								)}
 							</tr>
 						)}
-					</thead>
-					<tbody>
 						{paginatedRows.map((row, rowIndex) => {
 							const isLast = rowIndex === paginatedRows.length - 1
 							const classes = isLast
