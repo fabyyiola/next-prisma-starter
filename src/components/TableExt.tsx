@@ -1,50 +1,3 @@
-/**
- * TableExt Component
- *
- * This component renders a customizable table with optional tabs, search functionality, and filtering capabilities.
- *
- * STATES:
- * - searchQuery (string): Stores the current search query.
- * - filteredRows (TableRow[]): Stores the rows filtered based on the search query and filters.
- * - activeTabValue (string): Stores the value of the currently active tab.
- * - activeTabColIndex (number): Stores the column index of the currently active tab.
- * - currentPage (number): Stores the current page number for pagination.
- * - showFilters (boolean): Toggles the visibility of column filters.
- * - sortConfig ({ key: string, direction: 'ascending' | 'descending' } | null): Stores the sorting configuration.
- * - columnFilters (string[]): Stores the column filter values.
- *
- * FUNCTIONS:
- * - getMaxColumnLengths (rows: TableRow[]): Returns an object with the maximum length of each column value.
- * - filterRows (query?: string, columnIndex?: number): Filters the table rows based on the search query and column filters.
- * - handleSearch (query: string, columnIndex?: number, changeInputVal: boolean): Handles the search input change and filters rows.
- * - handleTabChange (value: string, colIndex: number): Handles the tab change and filters rows.
- * - handlePageChange (newPage: number): Handles the pagination and changes the current page.
- * - handleSort (columnIndex: number): Handles sorting of columns.
- * - sortRows (): Sorts the rows based on the sort configuration.
- * - handleFilterChange (value: string, index: number): Handles the column filter change and filters rows.
- * - toggleFilters (): Toggles the visibility of column filters.
- *
- * PARAMETERS:
- * - tabs (Tab[]): Array of tabs to be displayed above the table.
- * - tableHead (string[]): Array of column headers.
- * - tableRows (TableRow[]): Array of rows to be displayed in the table.
- * - title (string): Title of the table.
- * - subtitle (string): Subtitle of the table.
- * - showEditButton (boolean): Flag to show or hide the edit button in each row.
- * - showAddRecordButton (boolean): Flag to show or hide the add record button.
- * - showSearchInput (boolean): Flag to show or hide the search input.
- * - addRecordButtonText (string): Text to be displayed on the add record button.
- * - handleAddClick (): Callback function for add record button click.
- * - handleEditClick (row: any): Callback function for edit button click in each row.
- *
- * CONSTANTS:
- * - rowsPerPage (number): Number of rows to be displayed per page.
- * - allTab (Tab): The "All" tab to be displayed in the tabs header.
- * - cellsPadding (string): Padding for the table cells.
- * - headersPadding (string): Padding for the table headers.
- * - isScrollable (boolean): Determines if the table is scrollable based on the number of columns.
- */
-
 import React, { useState, useEffect } from 'react'
 import {
 	MagnifyingGlassIcon,
@@ -141,7 +94,7 @@ export default function TableExt({
 	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const [showFilters, setShowFilters] = useState<boolean>(false)
-	const rowsPerPage = 10
+	const rowsPerPage = 20
 	const totalPages = Math.ceil(filteredRows.length / rowsPerPage)
 	const [sortConfig, setSortConfig] = useState<{
 		key: string
@@ -303,45 +256,22 @@ export default function TableExt({
 		(currentPage - 1) * rowsPerPage,
 		currentPage * rowsPerPage
 	)
-	const cellsPadding = '0'
 	const headersPadding = '2'
 
 	const isScrollable = tableHead.length > 5 // 8 columns + 1 actions column
 
 	return (
 		<Card className="h-full w-full">
-			<CardHeader floated={false} shadow={false} className="rounded-none">
-				<div className="mb-8 flex items-center justify-between gap-8">
-					<div>
-						<Typography variant="h5" color="blue-gray">
-							{title}
-						</Typography>
-						<Typography color="gray" className="mt-1 font-normal">
-							{subtitle}
-						</Typography>
-					</div>
-					{showAddRecordButton && (
-						<div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-							<Button
-								onClick={toggleFilters}
-								className="flex items-center gap-3"
-								variant="outlined"
-								size="sm"
-							>
-								<FunnelIcon strokeWidth={2} className="h-4 w-4" /> Filtrar
-							</Button>
-							<Button
-								onClick={handleAddClick}
-								className="flex items-center gap-3"
-								size="sm"
-							>
-								<UserPlusIcon strokeWidth={2} className="h-4 w-4" />{' '}
-								{addRecordButtonText}
-							</Button>
-						</div>
-					)}
+			<CardHeader floated={false} shadow={false} className="rounded-none mb-2">
+				<div className="mb-4 flex items-baseline gap-2">
+					<Typography variant="h5" color="blue-gray">
+						{title}
+					</Typography>
+					<Typography color="gray" className="font-small">
+						{subtitle}
+					</Typography>
 				</div>
-				<div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+				<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 					<Tabs value={activeTabValue} className="w-full md:w-max">
 						<TabsHeader>
 							{[allTab, ...tabs].map(({ label, value, columnIndex }) => (
@@ -357,6 +287,27 @@ export default function TableExt({
 							))}
 						</TabsHeader>
 					</Tabs>
+					{showAddRecordButton && (
+						<div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+							<Button
+								onClick={toggleFilters}
+								className="flex items-center gap-3"
+								variant="outlined"
+								size="sm"
+							>
+								<FunnelIcon strokeWidth={2} className="h-4 w-4" />{' '}
+								{showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+							</Button>
+							<Button
+								onClick={handleAddClick}
+								className="flex items-center gap-3"
+								size="sm"
+							>
+								<UserPlusIcon strokeWidth={2} className="h-4 w-4" />{' '}
+								{addRecordButtonText}
+							</Button>
+						</div>
+					)}
 					{showSearchInput && (
 						<div className="w-full md:w-72">
 							<Input
@@ -370,23 +321,24 @@ export default function TableExt({
 					)}
 				</div>
 			</CardHeader>
-			<CardBody className={`px-0 ${isScrollable ? 'overflow-x-scroll' : ''}`}>
+			<CardBody className={`pt-0 h-96 overflow-y-scroll`}>
 				<table
 					className={`mt-4 w-full ${
 						isScrollable ? 'min-w-max' : ''
 					} table-auto text-left`}
 				>
-					<thead>
+					<thead className="sticky top-0 z-10 bg-white">
 						<tr>
 							{tableHead.map((head, index) => (
 								<th
 									key={head}
 									onClick={() => handleSort(index)}
 									className={
-										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-' +
+										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50 p-' +
 										headersPadding +
-										' transition-colors hover:bg-blue-gray-50'
+										' transition-colors hover:bg-blue-gray-100'
 									}
+									style={{ top: 0 }}
 								>
 									<Typography
 										variant="small"
@@ -401,10 +353,11 @@ export default function TableExt({
 							{showEditButton && (
 								<th
 									className={
-										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-' +
+										'cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50 p-' +
 										headersPadding +
-										' transition-colors hover:bg-blue-gray-50'
+										' transition-colors hover:bg-blue-gray-100'
 									}
+									style={{ top: 0 }}
 								>
 									<Typography
 										variant="small"
@@ -417,6 +370,7 @@ export default function TableExt({
 							)}
 						</tr>
 					</thead>
+
 					<tbody>
 						{showFilters && (
 							<tr>

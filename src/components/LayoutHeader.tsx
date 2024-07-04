@@ -1,0 +1,54 @@
+import React from 'react';
+import {
+  Navbar,
+  Typography,
+  List,
+  ListItem,
+} from '@material-tailwind/react';
+
+function NavList() {
+  return (
+    <List className="flex flex-row p-0">
+      <Typography
+        as="a"
+        href="/"
+        variant="small"
+        color="blue-gray"
+        className="font-medium"
+      >
+        <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
+      </Typography>
+      <Typography
+        as="a"
+        href="#"
+        variant="small"
+        color="blue-gray"
+        className="font-medium"
+      >
+        <ListItem className="flex items-center gap-2 py-2 pr-4">
+          Contact Us
+        </ListItem>
+      </Typography>
+    </List>
+  );
+}
+
+export default function LayoutHeader() {
+  return (
+    <Navbar className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md mx-auto max-w-screen-xl px-4 py-2">
+      <div className="flex items-center justify-between text-blue-gray-900">
+        <Typography
+          as="a"
+          href="/"
+          variant="h6"
+          className="mr-4 cursor-pointer py-1.5 lg:ml-2"
+        >
+          JOGS Logistica
+        </Typography>
+        <div className="hidden lg:block">
+          <NavList />
+        </div>
+      </div>
+    </Navbar>
+  );
+}
