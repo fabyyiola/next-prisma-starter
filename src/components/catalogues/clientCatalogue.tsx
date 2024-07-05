@@ -9,14 +9,14 @@ import TableCards from '../TableCards';
 
 const TABS: Tab[] = [
   {
-    label: 'BJS',
-    value: 'gua',
+    label: 'Agua',
+    value: 'agua',
     columnIndex: 4,
   },
   {
-    label: 'Chiapas',
-    value: 'Chiapas',
-    columnIndex: 4,
+    label: 'P.Mor',
+    value: 'moral',
+    columnIndex: 7,
   },
 ];
 
@@ -26,7 +26,7 @@ const TABLE_HEAD = [
   'Calle',
   'Ciudad',
   'Estado',
-  'Codigo Postal',
+  'CP',
   'RFC',
   'Regimen Fiscal',
 ];
