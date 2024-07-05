@@ -29,13 +29,13 @@ export default function LayoutHeader() {
   const { loginWithRedirect, logout, isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) {
-    return (<Navbar className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md mx-auto max-w-screen-xl px-4 py-2">
+    return (<Navbar className="fixed top-0 left-0 right-6 bg-white shadow-md mx-auto px-4 py-2">
       <div className="flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
           href="/"
           variant="h6"
-          className="mr-4 cursor-pointer py-1.5 lg:ml-2"
+          className="mr-4 cursor-pointer"
         >
           JOGS Logistica
         </Typography>

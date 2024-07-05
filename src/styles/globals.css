@@ -17,3 +17,29 @@ body, html, #__next {
   padding: 70px 25px
 }
 
+.grid.place-items-center.fixed.w-screen.h-screen.bg-black.bg-opacity-60.backdrop-blur-sm{
+  overflow: auto;
+}
+
+/*Fix the alert to show on top of the layout header and fix the close button to show centered vertically*/
+div[role="alert"]{
+  z-index: 9999999;
+}
+
+div[role="alert"] > button
+{
+  margin-top: -8px;
+}
+
+@media (max-width: 1024px) {
+  .layout > nav > div {
+    margin-left: 50px;
+  }
+  .content > button{
+    margin-top: -13px;
+    margin-left: -10px;
+  }
+  .mb-4.flex.items-baseline.gap-2{
+    display: block;
+  }
+}

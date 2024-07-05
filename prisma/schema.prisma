@@ -60,7 +60,7 @@ model unidades {
 model usuarios {
   ID           Int      @id @default(autoincrement())
   Nombre       String
-  Email        String
+  Email        String @unique
   Accesos      String
   Administrador Boolean
 }

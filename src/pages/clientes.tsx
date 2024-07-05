@@ -1,4 +1,4 @@
-import ClientCatalogue from '@/components/catalogues/client'
+import ClientCatalogue from '@/components/catalogues/clientCatalogue'
 import withAuthentication from '@/components/WithAuth'
 
 const IndexPage = () => {

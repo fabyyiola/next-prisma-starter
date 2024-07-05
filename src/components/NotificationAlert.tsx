@@ -30,7 +30,6 @@ export function NotificationAlert({ message, type = "success", open, setOpen }: 
   }, [open, setOpen]);
 
   return (
-    <>
       <Alert
         open={open}
         onClose={() => setOpen(false)}
@@ -42,6 +41,5 @@ export function NotificationAlert({ message, type = "success", open, setOpen }: 
       >
         {message}
       </Alert>
-    </>
   );
 }
