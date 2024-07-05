@@ -19,19 +19,17 @@ import {
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import menuData from '@/data/menu'
+import { useAuth0 } from '@auth0/auth0-react';
 
 export default function SidebarWithBurgerMenu() {
-	const [open, setOpen] = React.useState(0)
 	const [openAlert, setOpenAlert] = React.useState(false) //set to true to show alert
 	const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
-
-	const handleOpen = (value: any) => {
-		setOpen(open === value ? 0 : value)
-	}
-
+	const { isAuthenticated } = useAuth0(); 
 	const openDrawer = () => setIsDrawerOpen(true)
 	const closeDrawer = () => setIsDrawerOpen(false)
-
+	if (!isAuthenticated) {
+		return null; // Do not render the sidebar if the user is not authenticated
+	}
 	return (
 		<>
 			<IconButton

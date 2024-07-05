@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import Sidebar from './Sidebar'
-import Header from './Header'
 import LayoutHeader from './LayoutHeader'
 
 interface LayoutProps {
