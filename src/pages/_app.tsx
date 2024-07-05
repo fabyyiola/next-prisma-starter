@@ -13,7 +13,7 @@ function App({ Component, pageProps }: AppProps) {
 			domain={auth0Config.domain}
 			clientId={auth0Config.clientId}
 			authorizationParams={{
-				redirect_uri: 'http://localhost:3000',
+				redirect_uri: auth0Config.redirect_uri,
 			}}
 		>
 			<Provider store={store}>

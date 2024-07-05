@@ -1,3 +1,4 @@
+// src/pages/api/usuarios/[id].ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../config/prisma';
 
@@ -6,32 +7,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const usuario = await prisma.usuarios.findUnique({ where: { ID: Number(id) } });
-      if (usuario) {
-        res.status(200).json(usuario);
+      const user = await prisma.usuarios.findUnique({ where: { ID: Number(id) } });
+      if (user) {
+        res.status(200).json(user);
       } else {
-        res.status(404).json({ error: 'Usuario not found' });
+        res.status(404).json({ error: 'User not found' });
       }
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch usuario' });
+      res.status(500).json({ error: 'Failed to fetch user' });
     }
   } else if (req.method === 'PUT') {
-    const { Nombre, Email, Accesos, Administrador } = req.body;
+    const { Nombre, Email, Accesos, Administrador, Estatus } = req.body;
     try {
-      const updatedUsuario = await prisma.usuarios.update({
+      const updatedUser = await prisma.usuarios.update({
         where: { ID: Number(id) },
-        data: { Nombre, Email, Accesos, Administrador },
+        data: { Nombre, Email, Accesos, Administrador,Estatus },
       });
-      res.status(200).json(updatedUsuario);
+      res.status(200).json(updatedUser);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update usuario' });
+      res.status(500).json({ error: 'Failed to update user' });
     }
   } else if (req.method === 'DELETE') {
     try {
       await prisma.usuarios.delete({ where: { ID: Number(id) } });
       res.status(204).end();
     } catch (error) {
-      res.status(500).json({ error: 'Failed to delete usuario' });
+      res.status(500).json({ error: 'Failed to delete user' });
     }
   } else {
     res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);

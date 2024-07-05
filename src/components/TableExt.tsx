@@ -17,8 +17,7 @@ import {
 	TabsHeader,
 	Tab,
 	Avatar,
-	IconButton,
-	Tooltip,
+	IconButton
 } from '@material-tailwind/react'
 import { colors } from '@material-tailwind/react/types/generic'
 import transformObj from '@/utils/transformTableRow'
@@ -56,25 +55,6 @@ interface TableExtProps {
 	handleEditClick?: (row: any) => void
 }
 
-/**
- * Returns an object with the maximum length of each column value.
- */
-const getMaxColumnLengths = (rows: TableRow[]): { [key: string]: number } => {
-	const maxLengths: { [key: string]: number } = {}
-
-	rows.forEach((row) => {
-		row.cells.forEach((cell) => {
-			const { colName, value } = cell
-
-			if (!maxLengths[colName] || value.length > maxLengths[colName]) {
-				maxLengths[colName] = value.length
-			}
-		})
-	})
-
-	return maxLengths
-}
-
 export default function TableExt({
 	tabs = [],
 	tableHead = [],
@@ -91,7 +71,6 @@ export default function TableExt({
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
 	const [activeTabValue, setActiveTabValue] = useState<string>('all')
-	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const [filterModalVisible, setFilterModalVisible] = useState<boolean[]>(
 		Array(tableHead.length).fill(false)
@@ -117,7 +96,7 @@ export default function TableExt({
 	useEffect(() => {
 		sortRows()
 	}, [sortConfig, filteredRows])
-
+	
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
@@ -218,20 +197,13 @@ export default function TableExt({
 
 		setFilteredRows(filteredRowsCopy)
 	}
-	const resetFilters = () => {
-		setSearchQuery('')
-		setColumnFilters(Array(tableHead.length).fill(''))
-		setFilterInputValues(Array(tableHead.length).fill(''))
-		setActiveTabValue('all')
-		setFilteredRows(initialTableRows)
-	}
+
 	/**
 	 * Handles the tab change and filters rows.
 	 */
 	const handleTabChange = (value: string, colIndex: number) => {
 		setSearchQuery('')
 		setActiveTabValue(value)
-		setActiveTabColIndex(colIndex)
 		if (value === 'all') {
 			setFilteredRows(initialTableRows)
 		} else {
@@ -382,8 +354,7 @@ export default function TableExt({
 									}
 									style={{ top: 0 }}
 								>
-									<Typography
-										variant="small"
+									<div
 										color="blue-gray"
 										className="flex items-center justify-between gap-2 font-normal leading-none"
 									>
@@ -433,7 +404,7 @@ export default function TableExt({
 												/>
 											</div>
 										)}
-									</Typography>
+									</div>
 								</th>
 							))}
 							{showEditButton && (

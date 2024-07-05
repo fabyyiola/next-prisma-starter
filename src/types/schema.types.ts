@@ -47,6 +47,7 @@ export interface Direccion {
 	Email: string;
 	Accesos: string;
 	Administrador: boolean;
+	Estatus: string;
   }
   
   // Clientes

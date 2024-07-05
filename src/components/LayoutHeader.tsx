@@ -12,7 +12,7 @@ function NavList() {
   return (
     <List className="flex flex-row p-0">
       <></>
-      {/* <Typography
+      { <Typography
         as="a"
         href="/"
         variant="small"
@@ -20,7 +20,7 @@ function NavList() {
         className="font-medium"
       >
         <ListItem className="flex items-center gap-2 py-2 pr-4">Home</ListItem>
-      </Typography> */}
+      </Typography> }
     </List>
   );
 }

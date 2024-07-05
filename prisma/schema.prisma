@@ -63,6 +63,7 @@ model usuarios {
   Email        String @unique
   Accesos      String
   Administrador Boolean
+  Estatus       String 
 }
 
 model regimenFiscal {
