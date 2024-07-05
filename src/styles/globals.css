@@ -10,11 +10,11 @@ body, html, #__next {
   }
 
   .btnSidebar{
-    position: fixed !important;
+    position: absolute !important;
   }
 
 .content-body{
-  padding: 70px 25px
+  padding: 70px 25px 0px
 }
 
 .grid.place-items-center.fixed.w-screen.h-screen.bg-black.bg-opacity-60.backdrop-blur-sm{

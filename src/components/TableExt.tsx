@@ -325,7 +325,7 @@ export default function TableExt({
           )}
         </div>
       </CardHeader>
-      <CardBody className={`pt-0 h-96 overflow-y-scroll`}>
+      <CardBody className={`pt-0 h-[calc(100vh-250px)] overflow-y-scroll`}>
         <table
           className={`mt-4 w-full ${
             isScrollable ? 'min-w-max' : ''
