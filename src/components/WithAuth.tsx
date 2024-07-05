@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useRouter } from 'next/router';
+import { ScaleLoader  } from 'react-spinners';
 
 const withAuthentication = (Component: React.ComponentType) => {
   return (props: any) => {
@@ -17,7 +18,18 @@ const withAuthentication = (Component: React.ComponentType) => {
     }, [isLoading, isAuthenticated, loginWithRedirect, router]);
 
     if (isLoading || !isAuthenticated) {
-      return <div>Loading...</div>;
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <ScaleLoader color={"gray"} loading={isLoading} />
+        </div>
+      );
     }
 
     return <Component {...props} />;
