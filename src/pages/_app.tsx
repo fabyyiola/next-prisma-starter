@@ -6,6 +6,7 @@ import Layout from '../components/Layout'
 import '../styles/globals.css' // Ensure to include your global styles
 import { Auth0Provider } from '@auth0/auth0-react'
 import { auth0Config } from '@/config/auth0'
+import { ThemeProvider } from '@/components/theme-context'
 
 function App({ Component, pageProps }: AppProps) {
 	return (
@@ -17,11 +18,13 @@ function App({ Component, pageProps }: AppProps) {
 			}}
 		>
 			<Provider store={store}>
+			<ThemeProvider>
 				<Layout>
 					<div className="content-body">
 						<Component {...pageProps} />
 					</div>
 				</Layout>
+				</ThemeProvider>
 			</Provider>
 		</Auth0Provider>
 	)

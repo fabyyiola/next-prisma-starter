@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react'
 import {
 	MagnifyingGlassIcon,
 	ChevronUpDownIcon,
+	ChevronUpIcon,
+	ChevronDownIcon,
 } from '@heroicons/react/24/outline'
 import { PencilIcon, UserPlusIcon, FunnelIcon } from '@heroicons/react/24/solid'
 import {
@@ -127,7 +129,7 @@ export default function TableExt({
 		// Apply sorting
 		if (tableState.sortConfig !== null) {
 			filteredRowsCopy.sort((a, b) => {
-				const keyIndex = tableHead.indexOf(tableState.sortConfig!.key) // Use el operador de aserción no nulo (!)
+				const keyIndex = tableHead.indexOf(tableState.sortConfig!.key) // Use the non-null assertion operator (!)
 				const aValue = a.cells[keyIndex].value.toLowerCase()
 				const bValue = b.cells[keyIndex].value.toLowerCase()
 
@@ -184,6 +186,7 @@ export default function TableExt({
 			...prevState,
 			activeTabValue: value,
 			currentPage: 1,
+			sortConfig: null
 		}))
 	}
 
@@ -245,7 +248,9 @@ export default function TableExt({
 									onClick={() => handleTabChange(value)}
 									key={value}
 									value={value}
-									className={tableState.activeTabValue === value ? 'text-blue-500' : ''}
+									className={
+										tableState.activeTabValue === value ? 'text-blue-500' : ''
+									}
 								>
 									&nbsp;&nbsp;{label}&nbsp;&nbsp;
 								</Tab>
@@ -302,13 +307,28 @@ export default function TableExt({
 										className="flex items-center justify-between gap-2 font-normal leading-none"
 									>
 										<div className="flex items-center gap-2">
-											<ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+											{tableState.sortConfig &&
+											tableState.sortConfig.key === head ? (
+												tableState.sortConfig.direction === 'ascending' ? (
+													<ChevronUpIcon strokeWidth={2} className="h-4 w-4" />
+												) : (
+													<ChevronDownIcon
+														strokeWidth={2}
+														className="h-4 w-4"
+													/>
+												)
+											) : (
+												<ChevronUpDownIcon
+													strokeWidth={2}
+													className="h-4 w-4"
+												/>
+											)}
 											{head}
 										</div>
 										<button
 											className="ml-2"
 											onClick={(event) => {
-												event.stopPropagation() // Evita la propagación del evento
+												event.stopPropagation() // Prevent event propagation
 												const newFilterModalVisible = Array(
 													tableState.filterModalVisible.length
 												).fill(false)
@@ -352,7 +372,7 @@ export default function TableExt({
 													placeholder={`Buscar ${head}`}
 													onClick={(
 														event: React.MouseEvent<HTMLInputElement>
-													) => event.stopPropagation()} // Detiene la propagación del evento
+													) => event.stopPropagation()} // Prevent event propagation
 												/>
 											</div>
 										)}
