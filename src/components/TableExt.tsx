@@ -66,7 +66,7 @@ export default function TableExt({
 	showSearchInput = false,
 	addRecordButtonText = 'Agregar registro',
 	handleAddClick = () => {},
-	handleEditClick = () => {},
+	handleEditClick = () => {}
 }: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
@@ -88,14 +88,56 @@ export default function TableExt({
 	const [columnFilters, setColumnFilters] = useState<string[]>(
 		Array(tableHead.length).fill('')
 	)
-
+	
 	useEffect(() => {
-		filterRows()
-	}, [initialTableRows, tabs, columnFilters])
-
-	useEffect(() => {
-		sortRows()
-	}, [sortConfig, filteredRows])
+		let filteredRowsCopy: TableRow[] = [...initialTableRows];
+	
+		// Apply tab filter
+		if (activeTabValue && activeTabValue !== 'all') {
+			const selectedTab = tabs.find((tab) => tab.value === activeTabValue);
+			if (selectedTab) {
+				filteredRowsCopy = filteredRowsCopy.filter((row) => {
+					const cell = row.cells[selectedTab.columnIndex];
+					return cell && cell.value.toLowerCase().includes(selectedTab.value.toLowerCase());
+				});
+			}
+		}
+	
+		// Apply search query filter
+		if (searchQuery) {
+			filteredRowsCopy = filteredRowsCopy.filter((row) => {
+				return row.cells.some((cell) => cell.value.toLowerCase().includes(searchQuery.toLowerCase()));
+			});
+		}
+	
+		// Apply column filters
+		if (columnFilters.some((filter) => filter !== '')) {
+			filteredRowsCopy = filteredRowsCopy.filter((row) =>
+				row.cells.every((cell, index) =>
+					cell.value.toLowerCase().includes(columnFilters[index].toLowerCase())
+				)
+			);
+		}
+	
+		// Apply sorting
+		if (sortConfig !== null) {
+			filteredRowsCopy.sort((a, b) => {
+				const aValue = a.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase();
+				const bValue = b.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase();
+	
+				if (aValue < bValue) {
+					return sortConfig.direction === 'ascending' ? -1 : 1;
+				}
+				if (aValue > bValue) {
+					return sortConfig.direction === 'ascending' ? 1 : -1;
+				}
+				return 0;
+			});
+		}
+	
+		setFilteredRows(filteredRowsCopy);
+	}, [initialTableRows, tabs, columnFilters, searchQuery, sortConfig, activeTabValue, tableHead]);
+	
 	
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -121,7 +163,6 @@ export default function TableExt({
 		changeInputVal: boolean = true
 	) => {
 		if (changeInputVal) setSearchQuery(query)
-		filterRows(query, columnIndex, activeTabValue)
 		setCurrentPage(1) // Reset to first page on new search
 	}
 
@@ -206,13 +247,7 @@ export default function TableExt({
 		setActiveTabValue(value)
 		if (value === 'all') {
 			setFilteredRows(initialTableRows)
-		} else {
-			const selectedTab = tabs.find((tab) => tab.value === value)
-			if (selectedTab) {
-				const { columnIndex, value } = selectedTab
-				filterRows(undefined, undefined, value)
-			}
-		}
+		} 
 		setCurrentPage(1) // Reset to first page on tab change
 	}
 
@@ -241,28 +276,6 @@ export default function TableExt({
 		setSortConfig({ key, direction })
 	}
 
-	/**
-	 * Sorts the rows based on the sort configuration.
-	 */
-	const sortRows = () => {
-		if (sortConfig !== null) {
-			const sortedRows = [...filteredRows].sort((a, b) => {
-				let aValue =
-					a.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
-				let bValue =
-					b.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
-
-				if (aValue < bValue) {
-					return sortConfig.direction === 'ascending' ? -1 : 1
-				}
-				if (aValue > bValue) {
-					return sortConfig.direction === 'ascending' ? 1 : -1
-				}
-				return 0
-			})
-			setFilteredRows(sortedRows)
-		}
-	}
 
 	/**
 	 * Handles the column filter change and filters rows.
@@ -271,7 +284,6 @@ export default function TableExt({
 		const newFilters = [...columnFilters]
 		newFilters[index] = value
 		setColumnFilters(newFilters)
-		filterRows()
 	}
 
 	const allTab: Tab = { label: 'All', value: 'all', columnIndex: -1 }
@@ -345,6 +357,7 @@ export default function TableExt({
 						<tr>
 							{tableHead.map((head, index) => (
 								<th
+									title={filterInputValues[index]}
 									key={head}
 									onClick={() => handleSort(index)}
 									className={
@@ -375,7 +388,6 @@ export default function TableExt({
 											}}
 										>
 											<FunnelIcon
-												title={filterInputValues[index]}
 												strokeWidth={2}
 												className={`h-4 w-4 ${
 													filterInputValues[index] ? 'text-blue-500' : ''

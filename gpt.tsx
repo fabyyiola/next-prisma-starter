@@ -18,12 +18,42 @@ import {
 	Tab,
 	Avatar,
 	IconButton,
-	Tooltip,
 } from '@material-tailwind/react'
 import { colors } from '@material-tailwind/react/types/generic'
 import transformObj from '@/utils/transformTableRow'
 
-// Rest of the interfaces and helper functions...
+export interface Tab {
+	label: string
+	value: string
+	columnIndex: number
+}
+
+export interface TableCell {
+	type: 'text' | 'avatar' | 'chip'
+	value: string
+	colName: string
+	subtitle?: string
+	imgSrc?: string
+	chipColor?: colors | undefined
+}
+
+export interface TableRow {
+	cells: TableCell[]
+}
+
+interface TableExtProps {
+	tabs?: Tab[]
+	tableHead?: string[]
+	tableRows?: TableRow[]
+	title?: string
+	subtitle?: string
+	showEditButton?: boolean
+	showAddRecordButton?: boolean
+	showSearchInput?: boolean
+	addRecordButtonText?: string
+	handleAddClick?: () => void
+	handleEditClick?: (row: any) => void
+}
 
 export default function TableExt({
 	tabs = [],
@@ -37,11 +67,10 @@ export default function TableExt({
 	addRecordButtonText = 'Agregar registro',
 	handleAddClick = () => {},
 	handleEditClick = () => {},
-}) {
+}: TableExtProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [filteredRows, setFilteredRows] = useState<TableRow[]>(initialTableRows)
 	const [activeTabValue, setActiveTabValue] = useState<string>('all')
-	const [activeTabColIndex, setActiveTabColIndex] = useState<number>(NaN)
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const [filterModalVisible, setFilterModalVisible] = useState<boolean[]>(
 		Array(tableHead.length).fill(false)
@@ -61,97 +90,129 @@ export default function TableExt({
 	)
 
 	useEffect(() => {
-		const filterAndSortRows = () => {
-			console.log('Executing filterAndSortRows')
-			let filteredRowsCopy = [...initialTableRows]
-
-			// Apply tab filter
-			if (activeTabValue !== 'all') {
-				const selectedTab = tabs.find((tab) => tab.value === activeTabValue)
-				if (selectedTab) {
-					filteredRowsCopy = filteredRowsCopy.filter((row) => {
-						const cell = row.cells[selectedTab.columnIndex]
-						return (
-							cell &&
-							cell.value.toLowerCase().includes(selectedTab.value.toLowerCase())
-						)
-					})
-				}
-			}
-
-			// Apply search query filter
-			if (searchQuery) {
-				filteredRowsCopy = filteredRowsCopy.filter((row) =>
-					row.cells.some((cell) =>
-						cell.value.toLowerCase().includes(searchQuery.toLowerCase())
-					)
-				)
-			}
-
-			// Apply column filters
-			if (columnFilters.some((filter) => filter !== '')) {
-				filteredRowsCopy = filteredRowsCopy.filter((row) =>
-					row.cells.every((cell, index) =>
-						cell.value
-							.toLowerCase()
-							.includes(columnFilters[index].toLowerCase())
-					)
-				)
-			}
-
-			// Sort rows if sortConfig is set
-			if (sortConfig) {
-				filteredRowsCopy.sort((a, b) => {
-					let aValue =
-						a.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
-					let bValue =
-						b.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
-					if (aValue < bValue)
-						return sortConfig.direction === 'ascending' ? -1 : 1
-					if (aValue > bValue)
-						return sortConfig.direction === 'ascending' ? 1 : -1
-					return 0
-				})
-			}
-
-			setFilteredRows(filteredRowsCopy)
+		const processRows = () => {
+			let rows = filterRows(
+				initialTableRows,
+				searchQuery,
+				activeTabValue,
+				columnFilters
+			)
+			rows = sortRows(rows, sortConfig)
+			setFilteredRows(rows)
 		}
-
-		filterAndSortRows()
+		processRows()
 	}, [
 		initialTableRows,
 		tabs,
 		columnFilters,
+		sortConfig,
 		searchQuery,
 		activeTabValue,
-		sortConfig,
 	])
 
-	const handleSearch = (query) => {
-		console.log('Executing handleSearch')
-		setSearchQuery(query)
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				filterRefs.current.some(
+					(ref) => ref && !ref.contains(event.target as Node)
+				)
+			) {
+				setFilterModalVisible(Array(tableHead.length).fill(false))
+			}
+		}
+		document.addEventListener('mousedown', handleClickOutside)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+		}
+	}, [filterRefs])
+
+	const handleSearch = (
+		query: string,
+		columnIndex?: number,
+		changeInputVal: boolean = true
+	) => {
+		if (changeInputVal) setSearchQuery(query)
 		setCurrentPage(1) // Reset to first page on new search
 	}
 
-	const handleTabChange = (value, colIndex) => {
-		console.log('Executing handleTabChange')
+	const filterRows = (
+		rows: TableRow[],
+		query?: string,
+		selTabVal?: string,
+		filters: string[] = []
+	) => {
+		let filteredRowsCopy = [...rows]
+		if (!selTabVal && activeTabValue !== 'all') selTabVal = activeTabValue
+		if (selTabVal && selTabVal !== 'all') {
+			const selectedTab = tabs.find((tab) => tab.value === selTabVal)
+			if (selectedTab) {
+				filteredRowsCopy = filteredRowsCopy.filter((row) => {
+					const cell = row.cells[selectedTab.columnIndex]
+					return (
+						cell &&
+						cell.value.toLowerCase().includes(selectedTab.value.toLowerCase())
+					)
+				})
+			}
+		}
+
+		if (query && query !== '') {
+			filteredRowsCopy = filteredRowsCopy.filter((row) =>
+				row.cells.some((cell) =>
+					cell.value.toLowerCase().includes(query.toLowerCase())
+				)
+			)
+		}
+
+		if (filters.some((filter) => filter !== '')) {
+			filteredRowsCopy = filteredRowsCopy.filter((row) =>
+				row.cells.every((cell, index) =>
+					cell.value.toLowerCase().includes(filters[index].toLowerCase())
+				)
+			)
+		}
+
+		return filteredRowsCopy
+	}
+
+	const sortRows = (
+		rows: TableRow[],
+		sortConfig: { key: string; direction: 'ascending' | 'descending' } | null
+	) => {
+		if (sortConfig !== null) {
+			return [...rows].sort((a, b) => {
+				const aValue =
+					a.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
+				const bValue =
+					b.cells[tableHead.indexOf(sortConfig.key)].value.toLowerCase()
+
+				if (aValue < bValue) {
+					return sortConfig.direction === 'ascending' ? -1 : 1
+				}
+				if (aValue > bValue) {
+					return sortConfig.direction === 'ascending' ? 1 : -1
+				}
+				return 0
+			})
+		}
+		return rows
+	}
+
+	const handleTabChange = (value: string, colIndex: number) => {
 		setSearchQuery('')
 		setActiveTabValue(value)
-		setActiveTabColIndex(colIndex)
 		setCurrentPage(1) // Reset to first page on tab change
 	}
 
-	const handleFilterChange = (value, index) => {
-		console.log('Executing handleFilterChange')
-		const newFilters = [...columnFilters]
-		newFilters[index] = value
-		setColumnFilters(newFilters)
+	const handlePageChange = (newPage: number) => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
 	}
 
-	const handleSort = (columnIndex) => {
-		console.log('Executing handleSort')
+	const handleSort = (columnIndex: number) => {
 		const key = tableHead[columnIndex]
-		let direction = 'ascending'
+		let direction: 'ascending' | 'descending' = 'ascending'
 		if (
 			sortConfig &&
 			sortConfig.key === key &&
@@ -162,21 +223,20 @@ export default function TableExt({
 		setSortConfig({ key, direction })
 	}
 
-	const handlePageChange = (newPage) => {
-		console.log('Executing handlePageChange')
-		if (newPage > 0 && newPage <= totalPages) {
-			setCurrentPage(newPage)
-		}
+	const handleFilterChange = (value: string, index: number) => {
+		const newFilters = [...columnFilters]
+		newFilters[index] = value
+		setColumnFilters(newFilters)
 	}
 
-	const allTab = { label: 'All', value: 'all', columnIndex: -1 }
+	const allTab: Tab = { label: 'All', value: 'all', columnIndex: -1 }
 	const paginatedRows = filteredRows.slice(
 		(currentPage - 1) * rowsPerPage,
 		currentPage * rowsPerPage
 	)
 	const headersPadding = '2'
 
-	const isScrollable = tableHead.length > 5 // 8 columns + 1 actions column
+	const isScrollable = tableHead.length > 5
 
 	return (
 		<Card className="h-full w-full">
@@ -194,7 +254,9 @@ export default function TableExt({
 						<TabsHeader>
 							{[allTab, ...tabs].map(({ label, value, columnIndex }) => (
 								<Tab
-									onClick={() => handleTabChange(value, columnIndex)}
+									onClick={() => {
+										handleTabChange(value, columnIndex)
+									}}
 									key={value}
 									value={value}
 								>
@@ -247,18 +309,13 @@ export default function TableExt({
 									}
 									style={{ top: 0 }}
 								>
-									<div
-										color="blue-gray"
-										className="flex items-center justify-between gap-2 font-normal leading-none"
-									>
-										<div className="flex items-center gap-2">
-											<ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
-											{head}
-										</div>
+									<div className="flex items-center gap-2">
+										<ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+										{head}
 										<button
 											className="ml-2"
 											onClick={(event) => {
-												event.stopPropagation() // Prevent event propagation
+												event.stopPropagation()
 												const newFilterModalVisible = Array(
 													filterModalVisible.length
 												).fill(false)
@@ -282,14 +339,18 @@ export default function TableExt({
 											>
 												<input
 													value={filterInputValues[index]}
-													onChange={(e) => {
+													onChange={(
+														e: React.ChangeEvent<HTMLInputElement>
+													) => {
 														const newFilterInputValues = [...filterInputValues]
 														newFilterInputValues[index] = e.target.value
 														setFilterInputValues(newFilterInputValues)
 														handleFilterChange(e.target.value, index)
 													}}
 													placeholder={`Buscar ${head}`}
-													onClick={(event) => event.stopPropagation()} // Prevent event propagation
+													onClick={(
+														event: React.MouseEvent<HTMLInputElement>
+													) => event.stopPropagation()}
 												/>
 											</div>
 										)}
@@ -316,7 +377,6 @@ export default function TableExt({
 							)}
 						</tr>
 					</thead>
-
 					<tbody>
 						{paginatedRows.map((row, rowIndex) => {
 							const isLast = rowIndex === paginatedRows.length - 1
