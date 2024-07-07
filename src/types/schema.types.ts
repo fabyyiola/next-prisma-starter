@@ -15,8 +15,9 @@ export interface Direccion {
 	Nombre: string;
 	Direccion: string;
 	Telefono: string;
-	NombreConyuge?: string;
-	TelefonoConyuge?: string;
+	Email:string
+	NombreConyuge?: string | null;
+	TelefonoConyuge?: string | null;
 	CURP: string;
 	RFC: string;
 	AptoMedico: Date;

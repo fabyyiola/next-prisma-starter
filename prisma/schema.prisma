@@ -33,6 +33,7 @@ model empleados {
   Nombre          String
   Direccion       String
   Telefono        String
+  Email           String
   NombreConyuge   String?
   TelefonoConyuge String?
   CURP            String

@@ -9,6 +9,11 @@ const menuData = [
 		title: 'Clientes',
 		href: '/clientes',
 	},
+	{
+		icon: 'UsersIcon',
+		title: 'Empleados',
+		href: '/empleados',
+	},
 ]
 
 export default menuData

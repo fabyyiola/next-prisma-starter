@@ -1,6 +1,6 @@
 import { get, post, put, del } from './postApi';
 
-const API_URL = '/api/empleados';
+const API_URL = '/api/empleado';
 
 export const fetchEmpleados = async () => {
   return await get(API_URL);
