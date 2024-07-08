@@ -40,15 +40,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           TelefonoConyuge,
           CURP,
           RFC,
-          AptoMedico,
-          Licencia,
+          AptoMedico: new Date(AptoMedico),
+          Licencia: new Date(Licencia),
           Tipo,
-          SueldoSemanal,
+          SueldoSemanal: parseFloat(SueldoSemanal), // Ensure this is a float
         },
       });
       res.status(200).json(updatedEmpleado);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update empleado' });
+      res.status(500).json({ error: 'Failed to update empleado: ' + error });
     }
   } else if (req.method === 'DELETE') {
     try {

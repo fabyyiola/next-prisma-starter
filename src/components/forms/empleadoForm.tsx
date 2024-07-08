@@ -147,7 +147,7 @@ export default function EmpleadoForm({
                 value={
                   type === 'date'
                     ? formData[name as keyof Empleado] instanceof Date
-                      ? (formData[name as keyof Empleado] as Date).toISOString().split('T')[0]
+                      ? (formData[name as keyof Empleado] as Date).toString().split('T')[0]
                       : ''
                     : String(formData[name as keyof Empleado] ?? '')
                 }

@@ -5,7 +5,7 @@ const menuData = [
 		href: '/',
 	},
 	{
-		icon: 'UsersIcon',
+		icon: 'WalletIcon',
 		title: 'Clientes',
 		href: '/clientes',
 	},
@@ -13,6 +13,16 @@ const menuData = [
 		icon: 'UsersIcon',
 		title: 'Empleados',
 		href: '/empleados',
+	},
+	{
+		icon: 'GlobeAmericasIcon',
+		title: 'Direcciones',
+		href: '/direcciones',
+	},
+	{
+		icon: 'TruckIcon',
+		title: 'Unidades',
+		href: '/unidades',
 	},
 ]
 
