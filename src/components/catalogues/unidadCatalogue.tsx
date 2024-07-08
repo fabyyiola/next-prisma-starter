@@ -126,11 +126,11 @@ export default function UnidadCatalogue() {
       { type: 'text', colName: 'Marca', value: unidad.Marca },
       { type: 'text', colName: 'Modelo', value: unidad.Modelo },
       { type: 'text', colName: 'Tipo', value: unidad.Tipo },
-      { type: 'text', colName: 'VerMecanica', value: unidad.VerMecanica.toISOString().split('T')[0] },
-      { type: 'text', colName: 'VerContaminantes', value: unidad.VerContaminantes.toISOString().split('T')[0] },
-      { type: 'text', colName: 'VerUS', value: unidad.VerUS.toISOString().split('T')[0] },
-      { type: 'text', colName: 'PolizaUS', value: unidad.PolizaUS.toISOString().split('T')[0] },
-      { type: 'text', colName: 'PolizaMX', value: unidad.PolizaMX.toISOString().split('T')[0] },
+      { type: 'text', colName: 'VerMecanica', value: unidad.VerMecanica.toString().split('T')[0] },
+      { type: 'text', colName: 'VerContaminantes', value: unidad.VerContaminantes.toString().split('T')[0] },
+      { type: 'text', colName: 'VerUS', value: unidad.VerUS.toString().split('T')[0] },
+      { type: 'text', colName: 'PolizaUS', value: unidad.PolizaUS.toString().split('T')[0] },
+      { type: 'text', colName: 'PolizaMX', value: unidad.PolizaMX.toString().split('T')[0] },
     ],
   });
 
