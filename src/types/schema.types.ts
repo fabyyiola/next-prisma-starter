@@ -20,8 +20,8 @@ export interface Direccion {
 	TelefonoConyuge?: string | null;
 	CURP: string;
 	RFC: string;
-	AptoMedico: Date;
-	Licencia: Date;
+	AptoMedico: string;
+	Licencia: string;
 	Tipo: string;
 	SueldoSemanal: number;
   }
@@ -34,11 +34,11 @@ export interface Direccion {
 	Marca: string;
 	Modelo: string;
 	Tipo: string;
-	VerMecanica: Date;
-	VerContaminantes: Date;
-	VerUS: Date;
-	PolizaUS: Date;
-	PolizaMX: Date;
+	VerMecanica: string;
+	VerContaminantes: string;
+	VerUS: string;
+	PolizaUS: string;
+	PolizaMX: string;
   }
   
   // Usuarios

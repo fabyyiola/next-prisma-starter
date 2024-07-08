@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../config/prisma';
+import { convertToISO8601 } from '@/utils/tools';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -28,25 +29,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       PolizaUS,
       PolizaMX
     } = req.body;
+    
     try {
       const updatedUnidad = await prisma.unidades.update({
         where: { ID: Number(id) },
         data: {
-          NoEconomico,
+          NoEconomico: parseInt(NoEconomico, 10),
           Placas,
           Marca,
           Modelo,
           Tipo,
-          VerMecanica,
-          VerContaminantes,
-          VerUS,
-          PolizaUS,
-          PolizaMX
+          VerMecanica: convertToISO8601(VerMecanica),
+          VerContaminantes: convertToISO8601(VerContaminantes),
+          VerUS: convertToISO8601(VerUS),
+          PolizaUS: convertToISO8601(PolizaUS),
+          PolizaMX: convertToISO8601(PolizaMX),
         },
       });
       res.status(200).json(updatedUnidad);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to update unidad' });
+      res.status(500).json({ error: 'Failed to update unidad: ' + error });
     }
   } else if (req.method === 'DELETE') {
     try {

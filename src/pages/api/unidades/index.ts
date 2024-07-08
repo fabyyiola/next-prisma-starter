@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../config/prisma';
+import { convertToISO8601 } from '@/utils/tools';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -22,6 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       PolizaUS,
       PolizaMX
     } = req.body;
+
     try {
       const newUnidad = await prisma.unidades.create({
         data: {
@@ -30,16 +32,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           Marca,
           Modelo,
           Tipo,
-          VerMecanica,
-          VerContaminantes,
-          VerUS,
-          PolizaUS,
-          PolizaMX
+          VerMecanica: convertToISO8601(VerMecanica),
+          VerContaminantes: convertToISO8601(VerContaminantes),
+          VerUS: convertToISO8601(VerUS),
+          PolizaUS: convertToISO8601(PolizaUS),
+          PolizaMX: convertToISO8601(PolizaMX),
         },
       });
       res.status(201).json(newUnidad);
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create unidad' });
+      res.status(500).json({ error: 'Failed to create unidad: ' + error });
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST']);

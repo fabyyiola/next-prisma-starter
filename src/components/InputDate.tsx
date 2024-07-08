@@ -10,7 +10,7 @@ interface DateInputProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default function InputDate ({
+export default function InputDate({
   label,
   name,
   placeholder,
@@ -20,15 +20,7 @@ export default function InputDate ({
   onChange,
 }: DateInputProps) {
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const date = new Date(value);
-    const event = {
-      target: {
-        name: e.target.name,
-        value: value,
-      },
-    } as ChangeEvent<HTMLInputElement>;
-    onChange(event);
+    onChange(e);
   };
 
   return (

@@ -1,7 +1,11 @@
-export function formatDateToYYYYMMDD(date: any): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
-    console.log("tools:",`${year}-${month}-${day}`)
-    return `${year}-${month}-${day}`;
-  }
+export function createDateFromYYYYMMDD(dateString: string): Date {
+  const year = parseInt(dateString.slice(0, 4), 10);
+  const month = parseInt(dateString.slice(5, 7), 10) - 1; // Months are 0-based in JS Date
+  const day = parseInt(dateString.slice(8, 10), 10);
+  return new Date(year, month, day);
+}
+
+export function convertToISO8601(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toISOString();
+}
